@@ -1,0 +1,202 @@
+2026-01-15 13:53:04 INFO  00000 OpenLogReplicator v1.8.6 (C) 2018-2025 by Adam Leszczynski (aleszczynski@bersler.com), see LICENSE file for licensing information
+2026-01-15 13:53:04 INFO  00000 arch: x86_64, build-arch: , system: Linux, release: 5.15.0-157-generic, build: Debug, compiled: 2026-01-14 18:13, modules: Kafka OCI Prometheus Protobuf
+2026-01-15 13:53:04 INFO  00000 adding source: S1
+2026-01-15 13:53:04 INFO  00000 starting Prometheus metrics, listening on: 0.0.0.0:8080
+2026-01-15 13:53:04 WARN  60037 experimental feature is used: read using ASM
+2026-01-15 13:53:04 INFO  00000 adding target: DEBEZIUM
+2026-01-15 13:53:04 INFO  00000 writer is starting with Writer: Network:0.0.0.0:27017
+2026-01-15 13:53:04 WARN  10003 file: checkpoint/XE-chkpt.json - get metadata returned: No such file or directory
+2026-01-15 13:53:14 WARN  10056 host disconnected
+2026-01-15 13:53:24 WARN  10056 host disconnected
+2026-01-15 13:53:34 WARN  10056 host disconnected
+2026-01-15 13:53:44 WARN  10056 host disconnected
+2026-01-15 13:53:54 WARN  10056 host disconnected
+2026-01-15 13:54:04 WARN  10056 host disconnected
+2026-01-15 13:54:10 INFO  00000 client requested to start from scn: 10303282654587
+2026-01-15 13:54:10 INFO  00000 connecting to the database instance of XE to //10.15.123.74:1522/CBS3BT
+2026-01-15 13:54:11 INFO  00000 connecting to the ASM instance of XE to 10.15.123.74:1522/+ASM
+2026-01-15 13:54:11 INFO  00000 version: Oracle Database 19c Enterprise Edition Release 19.0.0.0.0 - Production, context: cbs3, resetlogs: 0, activation: 0, con_id: 0, con_name: cbs3
+2026-01-15 13:54:11 INFO  00000 loading character mapping for AL32UTF8
+2026-01-15 13:54:11 INFO  00000 loading character mapping for AL16UTF16
+2026-01-15 13:54:12 INFO  00000 online redo log: +REDO1/CBS3BT/ONLINELOG/group_31.264.1222334561
+2026-01-15 13:54:12 INFO  00000 online redo log: +REDO1/CBS3BT/ONLINELOG/group_32.263.1222334577
+2026-01-15 13:54:12 INFO  00000 online redo log: +REDO1/CBS3BT/ONLINELOG/group_33.262.1222334593
+2026-01-15 13:54:12 INFO  00000 online redo log: +REDO1/CBS3BT/ONLINELOG/group_34.261.1222334609
+2026-01-15 13:54:12 INFO  00000 online redo log: +REDO1/CBS3BT/ONLINELOG/group_35.260.1222334625
+2026-01-15 13:54:12 INFO  00000 online redo log: +REDO1/CBS3BT/ONLINELOG/group_36.259.1222334643
+2026-01-15 13:54:12 INFO  00000 online redo log: +REDO1/CBS3BT/ONLINELOG/group_37.258.1222334659
+2026-01-15 13:54:12 INFO  00000 timezone: +05:00, db-timezone: +05:00, log-timezone: +05:00, host-timezone: +05:00
+2026-01-15 13:54:12 INFO  00000 Replicator for XE in ASM mode is starting from scn: 10303282654587
+2026-01-15 13:54:12 INFO  00000 current resetlogs is: 1222131942
+2026-01-15 13:54:12 INFO  00000 first data SCN: 10303282654587
+2026-01-15 13:54:14 INFO  00000 starting sequence not found - starting with new batch with seq: 190
+2026-01-15 13:54:14 INFO  00000 reading dictionaries for scn: 10303282654587
+2026-01-15 13:56:16 INFO  00000 - found: COLVIR.T_LIM (dataobj: 109898, obj: 109898, columns: 14, lobs: 0, lob-idx: 0)
+2026-01-15 13:56:16 INFO  00000 - found: XDB.X$QN0PKE0RID1H172V0L00034UWLGA (dataobj: 69842, obj: 69842, columns: 4, lobs: 0, lob-idx: 0)
+2026-01-15 13:56:16 INFO  00000 - found: XDB.X$NM0PKE0RID1H172V0L00034UWLGA (dataobj: 69841, obj: 69841, columns: 2, lobs: 0, lob-idx: 0)
+2026-01-15 13:56:16 INFO  00000 - found: XDB.XDB$TTSET (dataobj: 69838, obj: 69838, columns: 4, lobs: 0, lob-idx: 0)
+2026-01-15 13:56:16 INFO  00000 - found: SYS.CCOL$ (dataobj: 29, obj: 32, columns: 11, lobs: 0, lob-idx: 0), part of cluster
+2026-01-15 13:56:16 INFO  00000 - found: SYS.USER$ (dataobj: 10099398, obj: 10099402, columns: 30, lobs: 0, lob-idx: 0), part of cluster
+2026-01-15 13:56:16 INFO  00000 - found: SYS.ECOL$ (dataobj: 123, obj: 123, columns: 4, lobs: 0, lob-idx: 0)
+2026-01-15 13:56:16 INFO  00000 - found: SYS.TAB$ (dataobj: 10099396, obj: 10099407, columns: 45, lobs: 0, lob-idx: 0), part of cluster
+2026-01-15 13:56:16 INFO  00000 - found: XDB.X$PT0PKE0RID1H172V0L00034UWLGA (dataobj: 69843, obj: 69843, columns: 2, lobs: 0, lob-idx: 0)
+2026-01-15 13:56:16 INFO  00000 - found: SYS.TABPART$ (dataobj: 591, obj: 591, columns: 26, lobs: 0, lob-idx: 0)
+2026-01-15 13:56:16 INFO  00000 - found: SYS.CDEF$ (dataobj: 29, obj: 31, columns: 21, lobs: 0, lob-idx: 0), part of cluster
+2026-01-15 13:56:16 INFO  00000 - found: SYS.TABSUBPART$ (dataobj: 603, obj: 603, columns: 26, lobs: 0, lob-idx: 0)
+2026-01-15 13:56:16 INFO  00000 - found: SYS.COL$ (dataobj: 10099396, obj: 10099403, columns: 37, lobs: 0, lob-idx: 0), part of cluster
+2026-01-15 13:56:16 INFO  00000 - found: SYS.TS$ (dataobj: 6, obj: 16, columns: 32, lobs: 0, lob-idx: 0), part of cluster
+2026-01-15 13:56:16 INFO  00000 - found: SYS.DEFERRED_STG$ (dataobj: 132, obj: 132, columns: 25, lobs: 0, lob-idx: 0)
+2026-01-15 13:56:16 INFO  00000 - found: SYS.OBJ$ (dataobj: 10099390, obj: 10099390, columns: 37, lobs: 0, lob-idx: 0)
+2026-01-15 13:56:16 INFO  00000 - found: SYS.TABCOMPART$ (dataobj: 613, obj: 613, columns: 35, lobs: 0, lob-idx: 0)
+2026-01-15 13:56:16 INFO  00000 - found: SYS.LOB$ (dataobj: 10099396, obj: 10099414, columns: 18, lobs: 0, lob-idx: 0), part of cluster
+2026-01-15 13:56:16 INFO  00000 - found: SYS.LOBFRAG$ (dataobj: 624, obj: 624, columns: 16, lobs: 0, lob-idx: 0)
+2026-01-15 13:56:16 INFO  00000 - found: SYS.LOBCOMPPART$ (dataobj: 627, obj: 627, columns: 24, lobs: 0, lob-idx: 0)
+2026-01-15 13:56:16 INFO  00000 last confirmed scn: 10303282654587, starting sequence: 190, offset: 0
+2026-01-15 13:56:16 INFO  00000 resume writer
+2026-01-15 13:56:16 INFO  00000 streaming to client
+2026-01-15 13:56:17 INFO  00000 found redo log version: 19.0.0, activation: 2918692248, resetlogs: 1222131942, page: 512, sequence: 190, SID: CBS3, endian: BIG
+2026-01-15 13:56:17 INFO  00000 processing redo log: group: 37 scn: 10302600916348 to 0 seq: 190 path: +REDO1/CBS3BT/ONLINELOG/group_37.258.1222334659 offset: 1024
+2026-01-15 13:56:17 INFO  00000 new activation detected: 2918692248
+2026-01-15 17:55:04 WARN  60010 no match found for transaction rollback, skipping, SLT: 9, USN: 831
+2026-01-15 18:16:49 INFO  00000 processing redo log: group: 31 scn: 10303973990865 to 0 seq: 191 path: +REDO1/CBS3BT/ONLINELOG/group_31.264.1222334561 offset: 1024
+2026-01-15 19:41:56 INFO  00000 processing redo log: group: 32 scn: 10304256892769 to 10304282838022 seq: 192 path: +REDO1/CBS3BT/ONLINELOG/group_32.263.1222334577 offset: 1024
+2026-01-15 20:10:21 INFO  00000 processing redo log: group: 33 scn: 10304282838022 to 0 seq: 193 path: +REDO1/CBS3BT/ONLINELOG/group_33.262.1222334593 offset: 1024
+2026-01-15 20:38:49 INFO  00000 processing redo log: group: 34 scn: 10304302778624 to 10304305379133 seq: 194 path: +REDO1/CBS3BT/ONLINELOG/group_34.261.1222334609 offset: 1024
+2026-01-15 20:58:24 INFO  00000 processing redo log: group: 35 scn: 10304305379133 to 0 seq: 195 path: +REDO1/CBS3BT/ONLINELOG/group_35.260.1222334625 offset: 1024
+2026-01-16 12:08:41 INFO  00000 processing redo log: group: 36 scn: 10306160760445 to 0 seq: 196 path: +REDO1/CBS3BT/ONLINELOG/group_36.259.1222334643 offset: 1024
+2026-01-16 18:43:06 INFO  00000 config file changed, reloading
+2026-01-16 18:43:06 INFO  00000 scanning objects which match the configuration file
+2026-01-16 18:43:07 INFO  00000 - found: COLVIR.T_LIM (dataobj: 109898, obj: 109898, columns: 14, lobs: 0, lob-idx: 0)
+2026-01-16 18:43:07 INFO  00000 - found: XDB.X$QN0PKE0RID1H172V0L00034UWLGA (dataobj: 69842, obj: 69842, columns: 4, lobs: 0, lob-idx: 0)
+2026-01-16 18:43:07 INFO  00000 - found: XDB.X$NM0PKE0RID1H172V0L00034UWLGA (dataobj: 69841, obj: 69841, columns: 2, lobs: 0, lob-idx: 0)
+2026-01-16 18:43:07 INFO  00000 - found: XDB.XDB$TTSET (dataobj: 69838, obj: 69838, columns: 4, lobs: 0, lob-idx: 0)
+2026-01-16 18:43:07 INFO  00000 - found: SYS.CCOL$ (dataobj: 29, obj: 32, columns: 11, lobs: 0, lob-idx: 0), part of cluster
+2026-01-16 18:43:07 INFO  00000 - found: SYS.USER$ (dataobj: 10099398, obj: 10099402, columns: 30, lobs: 0, lob-idx: 0), part of cluster
+2026-01-16 18:43:07 INFO  00000 - found: SYS.ECOL$ (dataobj: 123, obj: 123, columns: 4, lobs: 0, lob-idx: 0)
+2026-01-16 18:43:07 INFO  00000 - found: SYS.TAB$ (dataobj: 10099396, obj: 10099407, columns: 45, lobs: 0, lob-idx: 0), part of cluster
+2026-01-16 18:43:07 INFO  00000 - found: XDB.X$PT0PKE0RID1H172V0L00034UWLGA (dataobj: 69843, obj: 69843, columns: 2, lobs: 0, lob-idx: 0)
+2026-01-16 18:43:07 INFO  00000 - found: SYS.TABPART$ (dataobj: 591, obj: 591, columns: 26, lobs: 0, lob-idx: 0)
+2026-01-16 18:43:07 INFO  00000 - found: SYS.CDEF$ (dataobj: 29, obj: 31, columns: 21, lobs: 0, lob-idx: 0), part of cluster
+2026-01-16 18:43:07 INFO  00000 - found: SYS.TABSUBPART$ (dataobj: 603, obj: 603, columns: 26, lobs: 0, lob-idx: 0)
+2026-01-16 18:43:07 INFO  00000 - found: SYS.COL$ (dataobj: 10099396, obj: 10099403, columns: 37, lobs: 0, lob-idx: 0), part of cluster
+2026-01-16 18:43:07 INFO  00000 - found: SYS.TS$ (dataobj: 6, obj: 16, columns: 32, lobs: 0, lob-idx: 0), part of cluster
+2026-01-16 18:43:07 INFO  00000 - found: SYS.DEFERRED_STG$ (dataobj: 132, obj: 132, columns: 25, lobs: 0, lob-idx: 0)
+2026-01-16 18:43:07 INFO  00000 - found: SYS.OBJ$ (dataobj: 10099390, obj: 10099390, columns: 37, lobs: 0, lob-idx: 0)
+2026-01-16 18:43:07 INFO  00000 - found: SYS.TABCOMPART$ (dataobj: 613, obj: 613, columns: 35, lobs: 0, lob-idx: 0)
+2026-01-16 18:43:07 INFO  00000 - found: SYS.LOB$ (dataobj: 10099396, obj: 10099414, columns: 18, lobs: 0, lob-idx: 0), part of cluster
+2026-01-16 18:43:07 INFO  00000 - found: SYS.LOBFRAG$ (dataobj: 624, obj: 624, columns: 16, lobs: 0, lob-idx: 0)
+2026-01-16 18:43:07 INFO  00000 - found: SYS.LOBCOMPPART$ (dataobj: 627, obj: 627, columns: 24, lobs: 0, lob-idx: 0)
+2026-01-16 19:48:24 INFO  00000 processing redo log: group: 37 scn: 10307276079578 to 0 seq: 197 path: +REDO1/CBS3BT/ONLINELOG/group_37.258.1222334659 offset: 1024
+2026-01-16 20:27:16 INFO  00000 processing redo log: group: 31 scn: 10307278723483 to 10307281083541 seq: 198 path: +REDO1/CBS3BT/ONLINELOG/group_31.264.1222334561 offset: 1024
+2026-01-16 20:41:22 INFO  00000 processing redo log: group: 32 scn: 10307281083541 to 10307283669306 seq: 199 path: +REDO1/CBS3BT/ONLINELOG/group_32.263.1222334577 offset: 1024
+2026-01-16 21:08:41 INFO  00000 processing redo log: group: 33 scn: 10307283669306 to 0 seq: 200 path: +REDO1/CBS3BT/ONLINELOG/group_33.262.1222334593 offset: 1024
+2026-01-21 20:30:19 INFO  00000 config file changed, reloading
+2026-01-21 20:30:19 INFO  00000 scanning objects which match the configuration file
+2026-01-21 20:30:20 INFO  00000 - found: COLVIR.T_LIM (dataobj: 109898, obj: 109898, columns: 14, lobs: 0, lob-idx: 0)
+2026-01-21 20:30:20 INFO  00000 - found: XDB.X$QN0PKE0RID1H172V0L00034UWLGA (dataobj: 69842, obj: 69842, columns: 4, lobs: 0, lob-idx: 0)
+2026-01-21 20:30:20 INFO  00000 - found: XDB.X$NM0PKE0RID1H172V0L00034UWLGA (dataobj: 69841, obj: 69841, columns: 2, lobs: 0, lob-idx: 0)
+2026-01-21 20:30:20 INFO  00000 - found: XDB.XDB$TTSET (dataobj: 69838, obj: 69838, columns: 4, lobs: 0, lob-idx: 0)
+2026-01-21 20:30:20 INFO  00000 - found: SYS.CCOL$ (dataobj: 29, obj: 32, columns: 11, lobs: 0, lob-idx: 0), part of cluster
+2026-01-21 20:30:20 INFO  00000 - found: SYS.USER$ (dataobj: 10099398, obj: 10099402, columns: 30, lobs: 0, lob-idx: 0), part of cluster
+2026-01-21 20:30:20 INFO  00000 - found: SYS.ECOL$ (dataobj: 123, obj: 123, columns: 4, lobs: 0, lob-idx: 0)
+2026-01-21 20:30:20 INFO  00000 - found: SYS.TAB$ (dataobj: 10099396, obj: 10099407, columns: 45, lobs: 0, lob-idx: 0), part of cluster
+2026-01-21 20:30:20 INFO  00000 - found: XDB.X$PT0PKE0RID1H172V0L00034UWLGA (dataobj: 69843, obj: 69843, columns: 2, lobs: 0, lob-idx: 0)
+2026-01-21 20:30:20 INFO  00000 - found: SYS.TABPART$ (dataobj: 591, obj: 591, columns: 26, lobs: 0, lob-idx: 0)
+2026-01-21 20:30:20 INFO  00000 - found: SYS.CDEF$ (dataobj: 29, obj: 31, columns: 21, lobs: 0, lob-idx: 0), part of cluster
+2026-01-21 20:30:20 INFO  00000 - found: SYS.TABSUBPART$ (dataobj: 603, obj: 603, columns: 26, lobs: 0, lob-idx: 0)
+2026-01-21 20:30:20 INFO  00000 - found: SYS.COL$ (dataobj: 10099396, obj: 10099403, columns: 37, lobs: 0, lob-idx: 0), part of cluster
+2026-01-21 20:30:20 INFO  00000 - found: SYS.TS$ (dataobj: 6, obj: 16, columns: 32, lobs: 0, lob-idx: 0), part of cluster
+2026-01-21 20:30:20 INFO  00000 - found: SYS.DEFERRED_STG$ (dataobj: 132, obj: 132, columns: 25, lobs: 0, lob-idx: 0)
+2026-01-21 20:30:20 INFO  00000 - found: SYS.OBJ$ (dataobj: 10099390, obj: 10099390, columns: 37, lobs: 0, lob-idx: 0)
+2026-01-21 20:30:20 INFO  00000 - found: SYS.TABCOMPART$ (dataobj: 613, obj: 613, columns: 35, lobs: 0, lob-idx: 0)
+2026-01-21 20:30:20 INFO  00000 - found: SYS.LOB$ (dataobj: 10099396, obj: 10099414, columns: 18, lobs: 0, lob-idx: 0), part of cluster
+2026-01-21 20:30:20 INFO  00000 - found: SYS.LOBFRAG$ (dataobj: 624, obj: 624, columns: 16, lobs: 0, lob-idx: 0)
+2026-01-21 20:30:20 INFO  00000 - found: SYS.LOBCOMPPART$ (dataobj: 627, obj: 627, columns: 24, lobs: 0, lob-idx: 0)
+2026-01-21 20:32:06 INFO  00000 config file changed, reloading
+2026-01-21 20:32:06 INFO  00000 scanning objects which match the configuration file
+2026-01-21 20:32:07 INFO  00000 - found: COLVIR.T_LIM (dataobj: 109898, obj: 109898, columns: 14, lobs: 0, lob-idx: 0)
+2026-01-21 20:32:07 INFO  00000 - found: XDB.X$QN0PKE0RID1H172V0L00034UWLGA (dataobj: 69842, obj: 69842, columns: 4, lobs: 0, lob-idx: 0)
+2026-01-21 20:32:07 INFO  00000 - found: XDB.X$NM0PKE0RID1H172V0L00034UWLGA (dataobj: 69841, obj: 69841, columns: 2, lobs: 0, lob-idx: 0)
+2026-01-21 20:32:07 INFO  00000 - found: XDB.XDB$TTSET (dataobj: 69838, obj: 69838, columns: 4, lobs: 0, lob-idx: 0)
+2026-01-21 20:32:07 INFO  00000 - found: SYS.CCOL$ (dataobj: 29, obj: 32, columns: 11, lobs: 0, lob-idx: 0), part of cluster
+2026-01-21 20:32:07 INFO  00000 - found: SYS.USER$ (dataobj: 10099398, obj: 10099402, columns: 30, lobs: 0, lob-idx: 0), part of cluster
+2026-01-21 20:32:07 INFO  00000 - found: SYS.ECOL$ (dataobj: 123, obj: 123, columns: 4, lobs: 0, lob-idx: 0)
+2026-01-21 20:32:07 INFO  00000 - found: SYS.TAB$ (dataobj: 10099396, obj: 10099407, columns: 45, lobs: 0, lob-idx: 0), part of cluster
+2026-01-21 20:32:07 INFO  00000 - found: XDB.X$PT0PKE0RID1H172V0L00034UWLGA (dataobj: 69843, obj: 69843, columns: 2, lobs: 0, lob-idx: 0)
+2026-01-21 20:32:07 INFO  00000 - found: SYS.TABPART$ (dataobj: 591, obj: 591, columns: 26, lobs: 0, lob-idx: 0)
+2026-01-21 20:32:07 INFO  00000 - found: SYS.CDEF$ (dataobj: 29, obj: 31, columns: 21, lobs: 0, lob-idx: 0), part of cluster
+2026-01-21 20:32:07 INFO  00000 - found: SYS.TABSUBPART$ (dataobj: 603, obj: 603, columns: 26, lobs: 0, lob-idx: 0)
+2026-01-21 20:32:07 INFO  00000 - found: SYS.COL$ (dataobj: 10099396, obj: 10099403, columns: 37, lobs: 0, lob-idx: 0), part of cluster
+2026-01-21 20:32:07 INFO  00000 - found: SYS.TS$ (dataobj: 6, obj: 16, columns: 32, lobs: 0, lob-idx: 0), part of cluster
+2026-01-21 20:32:07 INFO  00000 - found: SYS.DEFERRED_STG$ (dataobj: 132, obj: 132, columns: 25, lobs: 0, lob-idx: 0)
+2026-01-21 20:32:07 INFO  00000 - found: SYS.OBJ$ (dataobj: 10099390, obj: 10099390, columns: 37, lobs: 0, lob-idx: 0)
+2026-01-21 20:32:07 INFO  00000 - found: SYS.TABCOMPART$ (dataobj: 613, obj: 613, columns: 35, lobs: 0, lob-idx: 0)
+2026-01-21 20:32:07 INFO  00000 - found: SYS.LOB$ (dataobj: 10099396, obj: 10099414, columns: 18, lobs: 0, lob-idx: 0), part of cluster
+2026-01-21 20:32:07 INFO  00000 - found: SYS.LOBFRAG$ (dataobj: 624, obj: 624, columns: 16, lobs: 0, lob-idx: 0)
+2026-01-21 20:32:07 INFO  00000 - found: SYS.LOBCOMPPART$ (dataobj: 627, obj: 627, columns: 24, lobs: 0, lob-idx: 0)
+2026-01-21 20:42:01 INFO  00000 config file changed, reloading
+2026-01-21 20:42:01 INFO  00000 scanning objects which match the configuration file
+2026-01-21 20:42:02 INFO  00000 - found: COLVIR.T_LIM (dataobj: 109898, obj: 109898, columns: 14, lobs: 0, lob-idx: 0)
+2026-01-21 20:42:02 INFO  00000 - found: XDB.X$QN0PKE0RID1H172V0L00034UWLGA (dataobj: 69842, obj: 69842, columns: 4, lobs: 0, lob-idx: 0)
+2026-01-21 20:42:02 INFO  00000 - found: XDB.X$NM0PKE0RID1H172V0L00034UWLGA (dataobj: 69841, obj: 69841, columns: 2, lobs: 0, lob-idx: 0)
+2026-01-21 20:42:02 INFO  00000 - found: XDB.XDB$TTSET (dataobj: 69838, obj: 69838, columns: 4, lobs: 0, lob-idx: 0)
+2026-01-21 20:42:02 INFO  00000 - found: SYS.CCOL$ (dataobj: 29, obj: 32, columns: 11, lobs: 0, lob-idx: 0), part of cluster
+2026-01-21 20:42:02 INFO  00000 - found: SYS.USER$ (dataobj: 10099398, obj: 10099402, columns: 30, lobs: 0, lob-idx: 0), part of cluster
+2026-01-21 20:42:02 INFO  00000 - found: SYS.ECOL$ (dataobj: 123, obj: 123, columns: 4, lobs: 0, lob-idx: 0)
+2026-01-21 20:42:02 INFO  00000 - found: SYS.TAB$ (dataobj: 10099396, obj: 10099407, columns: 45, lobs: 0, lob-idx: 0), part of cluster
+2026-01-21 20:42:02 INFO  00000 - found: XDB.X$PT0PKE0RID1H172V0L00034UWLGA (dataobj: 69843, obj: 69843, columns: 2, lobs: 0, lob-idx: 0)
+2026-01-21 20:42:02 INFO  00000 - found: SYS.TABPART$ (dataobj: 591, obj: 591, columns: 26, lobs: 0, lob-idx: 0)
+2026-01-21 20:42:02 INFO  00000 - found: SYS.CDEF$ (dataobj: 29, obj: 31, columns: 21, lobs: 0, lob-idx: 0), part of cluster
+2026-01-21 20:42:02 INFO  00000 - found: SYS.TABSUBPART$ (dataobj: 603, obj: 603, columns: 26, lobs: 0, lob-idx: 0)
+2026-01-21 20:42:02 INFO  00000 - found: SYS.COL$ (dataobj: 10099396, obj: 10099403, columns: 37, lobs: 0, lob-idx: 0), part of cluster
+2026-01-21 20:42:02 INFO  00000 - found: SYS.TS$ (dataobj: 6, obj: 16, columns: 32, lobs: 0, lob-idx: 0), part of cluster
+2026-01-21 20:42:02 INFO  00000 - found: SYS.DEFERRED_STG$ (dataobj: 132, obj: 132, columns: 25, lobs: 0, lob-idx: 0)
+2026-01-21 20:42:02 INFO  00000 - found: SYS.OBJ$ (dataobj: 10099390, obj: 10099390, columns: 37, lobs: 0, lob-idx: 0)
+2026-01-21 20:42:02 INFO  00000 - found: SYS.TABCOMPART$ (dataobj: 613, obj: 613, columns: 35, lobs: 0, lob-idx: 0)
+2026-01-21 20:42:02 INFO  00000 - found: SYS.LOB$ (dataobj: 10099396, obj: 10099414, columns: 18, lobs: 0, lob-idx: 0), part of cluster
+2026-01-21 20:42:02 INFO  00000 - found: SYS.LOBFRAG$ (dataobj: 624, obj: 624, columns: 16, lobs: 0, lob-idx: 0)
+2026-01-21 20:42:02 INFO  00000 - found: SYS.LOBCOMPPART$ (dataobj: 627, obj: 627, columns: 24, lobs: 0, lob-idx: 0)
+2026-01-21 20:44:00 INFO  00000 config file changed, reloading
+2026-01-21 20:44:00 INFO  00000 scanning objects which match the configuration file
+2026-01-21 20:44:01 INFO  00000 - found: COLVIR.T_LIM (dataobj: 109898, obj: 109898, columns: 14, lobs: 0, lob-idx: 0)
+2026-01-21 20:44:01 INFO  00000 - found: XDB.X$QN0PKE0RID1H172V0L00034UWLGA (dataobj: 69842, obj: 69842, columns: 4, lobs: 0, lob-idx: 0)
+2026-01-21 20:44:01 INFO  00000 - found: XDB.X$NM0PKE0RID1H172V0L00034UWLGA (dataobj: 69841, obj: 69841, columns: 2, lobs: 0, lob-idx: 0)
+2026-01-21 20:44:01 INFO  00000 - found: XDB.XDB$TTSET (dataobj: 69838, obj: 69838, columns: 4, lobs: 0, lob-idx: 0)
+2026-01-21 20:44:01 INFO  00000 - found: SYS.CCOL$ (dataobj: 29, obj: 32, columns: 11, lobs: 0, lob-idx: 0), part of cluster
+2026-01-21 20:44:01 INFO  00000 - found: SYS.USER$ (dataobj: 10099398, obj: 10099402, columns: 30, lobs: 0, lob-idx: 0), part of cluster
+2026-01-21 20:44:01 INFO  00000 - found: SYS.ECOL$ (dataobj: 123, obj: 123, columns: 4, lobs: 0, lob-idx: 0)
+2026-01-21 20:44:01 INFO  00000 - found: SYS.TAB$ (dataobj: 10099396, obj: 10099407, columns: 45, lobs: 0, lob-idx: 0), part of cluster
+2026-01-21 20:44:01 INFO  00000 - found: XDB.X$PT0PKE0RID1H172V0L00034UWLGA (dataobj: 69843, obj: 69843, columns: 2, lobs: 0, lob-idx: 0)
+2026-01-21 20:44:01 INFO  00000 - found: SYS.TABPART$ (dataobj: 591, obj: 591, columns: 26, lobs: 0, lob-idx: 0)
+2026-01-21 20:44:01 INFO  00000 - found: SYS.CDEF$ (dataobj: 29, obj: 31, columns: 21, lobs: 0, lob-idx: 0), part of cluster
+2026-01-21 20:44:01 INFO  00000 - found: SYS.TABSUBPART$ (dataobj: 603, obj: 603, columns: 26, lobs: 0, lob-idx: 0)
+2026-01-21 20:44:01 INFO  00000 - found: SYS.COL$ (dataobj: 10099396, obj: 10099403, columns: 37, lobs: 0, lob-idx: 0), part of cluster
+2026-01-21 20:44:01 INFO  00000 - found: SYS.TS$ (dataobj: 6, obj: 16, columns: 32, lobs: 0, lob-idx: 0), part of cluster
+2026-01-21 20:44:01 INFO  00000 - found: SYS.DEFERRED_STG$ (dataobj: 132, obj: 132, columns: 25, lobs: 0, lob-idx: 0)
+2026-01-21 20:44:01 INFO  00000 - found: SYS.OBJ$ (dataobj: 10099390, obj: 10099390, columns: 37, lobs: 0, lob-idx: 0)
+2026-01-21 20:44:01 INFO  00000 - found: SYS.TABCOMPART$ (dataobj: 613, obj: 613, columns: 35, lobs: 0, lob-idx: 0)
+2026-01-21 20:44:01 INFO  00000 - found: SYS.LOB$ (dataobj: 10099396, obj: 10099414, columns: 18, lobs: 0, lob-idx: 0), part of cluster
+2026-01-21 20:44:01 INFO  00000 - found: SYS.LOBFRAG$ (dataobj: 624, obj: 624, columns: 16, lobs: 0, lob-idx: 0)
+2026-01-21 20:44:01 INFO  00000 - found: SYS.LOBCOMPPART$ (dataobj: 627, obj: 627, columns: 24, lobs: 0, lob-idx: 0)
+2026-01-21 20:45:37 INFO  00000 config file changed, reloading
+2026-01-21 20:45:37 INFO  00000 scanning objects which match the configuration file
+2026-01-21 20:45:38 INFO  00000 - found: COLVIR.T_LIM (dataobj: 109898, obj: 109898, columns: 14, lobs: 0, lob-idx: 0)
+2026-01-21 20:45:38 INFO  00000 - found: XDB.X$QN0PKE0RID1H172V0L00034UWLGA (dataobj: 69842, obj: 69842, columns: 4, lobs: 0, lob-idx: 0)
+2026-01-21 20:45:38 INFO  00000 - found: XDB.X$NM0PKE0RID1H172V0L00034UWLGA (dataobj: 69841, obj: 69841, columns: 2, lobs: 0, lob-idx: 0)
+2026-01-21 20:45:38 INFO  00000 - found: XDB.XDB$TTSET (dataobj: 69838, obj: 69838, columns: 4, lobs: 0, lob-idx: 0)
+2026-01-21 20:45:38 INFO  00000 - found: SYS.CCOL$ (dataobj: 29, obj: 32, columns: 11, lobs: 0, lob-idx: 0), part of cluster
+2026-01-21 20:45:38 INFO  00000 - found: SYS.USER$ (dataobj: 10099398, obj: 10099402, columns: 30, lobs: 0, lob-idx: 0), part of cluster
+2026-01-21 20:45:38 INFO  00000 - found: SYS.ECOL$ (dataobj: 123, obj: 123, columns: 4, lobs: 0, lob-idx: 0)
+2026-01-21 20:45:38 INFO  00000 - found: SYS.TAB$ (dataobj: 10099396, obj: 10099407, columns: 45, lobs: 0, lob-idx: 0), part of cluster
+2026-01-21 20:45:38 INFO  00000 - found: XDB.X$PT0PKE0RID1H172V0L00034UWLGA (dataobj: 69843, obj: 69843, columns: 2, lobs: 0, lob-idx: 0)
+2026-01-21 20:45:38 INFO  00000 - found: SYS.TABPART$ (dataobj: 591, obj: 591, columns: 26, lobs: 0, lob-idx: 0)
+2026-01-21 20:45:38 INFO  00000 - found: SYS.CDEF$ (dataobj: 29, obj: 31, columns: 21, lobs: 0, lob-idx: 0), part of cluster
+2026-01-21 20:45:38 INFO  00000 - found: SYS.TABSUBPART$ (dataobj: 603, obj: 603, columns: 26, lobs: 0, lob-idx: 0)
+2026-01-21 20:45:38 INFO  00000 - found: SYS.COL$ (dataobj: 10099396, obj: 10099403, columns: 37, lobs: 0, lob-idx: 0), part of cluster
+2026-01-21 20:45:38 INFO  00000 - found: SYS.TS$ (dataobj: 6, obj: 16, columns: 32, lobs: 0, lob-idx: 0), part of cluster
+2026-01-21 20:45:38 INFO  00000 - found: SYS.DEFERRED_STG$ (dataobj: 132, obj: 132, columns: 25, lobs: 0, lob-idx: 0)
+2026-01-21 20:45:38 INFO  00000 - found: SYS.OBJ$ (dataobj: 10099390, obj: 10099390, columns: 37, lobs: 0, lob-idx: 0)
+2026-01-21 20:45:38 INFO  00000 - found: SYS.TABCOMPART$ (dataobj: 613, obj: 613, columns: 35, lobs: 0, lob-idx: 0)
+2026-01-21 20:45:38 INFO  00000 - found: SYS.LOB$ (dataobj: 10099396, obj: 10099414, columns: 18, lobs: 0, lob-idx: 0), part of cluster
+2026-01-21 20:45:38 INFO  00000 - found: SYS.LOBFRAG$ (dataobj: 624, obj: 624, columns: 16, lobs: 0, lob-idx: 0)
+2026-01-21 20:45:38 INFO  00000 - found: SYS.LOBCOMPPART$ (dataobj: 627, obj: 627, columns: 24, lobs: 0, lob-idx: 0)
