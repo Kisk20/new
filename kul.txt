@@ -1,4 +1,97 @@
  docker ps -a
 CONTAINER ID   IMAGE                                                                                               COMMAND                  CREATED      STATUS                  PORTS                                                                                          NAMES
 293120699cd8   registry-gitlab.corp.mail.ru/tarantool/cdc/v9/tarantool-cdc/openlogreplicator-vk:1.8.6-10-2c4dc87   "/bin/bash -c 'sed -…"   7 days ago   Up 7 days (unhealthy)   0.0.0.0:8080->8080/tcp, [::]:8080->8080/tcp, 0.0.0.0:27017->27017/tcp, [::]:27017->27017/tcp   OpenLogReplicator
-root@cdc-openlog-dev:~/new# ^C
+
+
+curl http://10.15.123.215:8080/metrics
+# HELP exposer_transferred_bytes_total Transferred bytes to metrics services
+# TYPE exposer_transferred_bytes_total counter
+exposer_transferred_bytes_total 3385
+# HELP exposer_scrapes_total Number of times metrics were scraped
+# TYPE exposer_scrapes_total counter
+exposer_scrapes_total 1
+# HELP exposer_request_latencies Latencies of serving scrape requests, in microseconds
+# TYPE exposer_request_latencies summary
+exposer_request_latencies_count 1
+exposer_request_latencies_sum 452
+exposer_request_latencies{quantile="0.5"} 452
+exposer_request_latencies{quantile="0.9"} 452
+exposer_request_latencies{quantile="0.99"} 452
+# HELP bytes_confirmed Number of bytes confirmed by output
+# TYPE bytes_confirmed counter
+bytes_confirmed 0
+# HELP bytes_parsed Number of bytes parsed containing redo log data
+# TYPE bytes_parsed counter
+bytes_parsed 0
+# HELP bytes_read Number of bytes read from redo log files
+# TYPE bytes_read counter
+bytes_read 0
+# HELP bytes_sent Number of bytes sent to output (for example to Kafka or network writer)
+# TYPE bytes_sent counter
+bytes_sent 0
+# HELP checkpoints Number of checkpoint records
+# TYPE checkpoints counter
+checkpoints{filter="skip"} 0
+checkpoints{filter="out"} 0
+# HELP ddl_ops Number of DDL operations
+# TYPE ddl_ops counter
+ddl_ops{type="truncate"} 0
+ddl_ops{type="other"} 0
+ddl_ops{type="purge"} 0
+ddl_ops{type="drop"} 0
+ddl_ops{type="create"} 0
+ddl_ops{type="alter"} 0
+# HELP dml_ops Number of DML operations
+# TYPE dml_ops counter
+dml_ops{filter="skip",type="rollback"} 0
+dml_ops{filter="partial",type="rollback"} 0
+dml_ops{filter="partial",type="commit"} 0
+dml_ops{filter="out",type="commit"} 0
+dml_ops{filter="skip",type="update"} 0
+dml_ops{filter="skip",type="delete"} 0
+dml_ops{filter="out",type="rollback"} 0
+dml_ops{filter="out",type="update"} 0
+dml_ops{filter="skip",type="insert"} 0
+dml_ops{filter="out",type="insert"} 0
+dml_ops{filter="skip",type="commit"} 0
+dml_ops{filter="out",type="delete"} 0
+# HELP log_switches Number of redo log switches
+# TYPE log_switches counter
+log_switches{type="archived"} 0
+log_switches{type="online"} 0
+# HELP messages_confirmed Number of messages confirmed by output
+# TYPE messages_confirmed counter
+messages_confirmed 0
+# HELP messages_sent Number of messages sent to output (for example to Kafka or network writer)
+# TYPE messages_sent counter
+messages_sent 0
+# HELP swap_operations_mb Operations on swap space in MB
+# TYPE swap_operations_mb counter
+swap_operations_mb{type="write"} 0
+swap_operations_mb{type="read"} 0
+swap_operations_mb{type="discard"} 0
+# HELP checkpoint_lag Checkpoint processing lag in seconds
+# TYPE checkpoint_lag gauge
+checkpoint_lag 0
+# HELP log_switches_lag Redo log file processing lag in seconds
+# TYPE log_switches_lag gauge
+log_switches_lag{type="archived"} 0
+log_switches_lag{type="online"} 0
+# HELP memory_allocated_mb Amount of allocated memory in MB
+# TYPE memory_allocated_mb gauge
+memory_allocated_mb 0
+# HELP memory_used_total_mb Total used memory
+# TYPE memory_used_total_mb gauge
+memory_used_total_mb 9
+# HELP memory_used_mb Memory used by module: builder
+# TYPE memory_used_mb gauge
+memory_used_mb{type="transactions"} 0
+memory_used_mb{type="reader"} 0
+memory_used_mb{type="parser"} 8
+memory_used_mb{type="writer"} 0
+memory_used_mb{type="misc"} 0
+memory_used_mb{type="builder"} 1
+# HELP swap_usage_mb Swap usage in MB
+# TYPE swap_usage_mb gauge
+swap_usage_mb 0
+
