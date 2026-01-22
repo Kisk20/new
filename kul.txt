@@ -1,0 +1,4 @@
+ docker ps -a
+CONTAINER ID   IMAGE                                                                                               COMMAND                  CREATED      STATUS                  PORTS                                                                                          NAMES
+293120699cd8   registry-gitlab.corp.mail.ru/tarantool/cdc/v9/tarantool-cdc/openlogreplicator-vk:1.8.6-10-2c4dc87   "/bin/bash -c 'sed -…"   7 days ago   Up 7 days (unhealthy)   0.0.0.0:8080->8080/tcp, [::]:8080->8080/tcp, 0.0.0.0:27017->27017/tcp, [::]:27017->27017/tcp   OpenLogReplicator
+root@cdc-openlog-dev:~/new# ^C
