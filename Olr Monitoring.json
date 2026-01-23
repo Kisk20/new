@@ -795,7 +795,7 @@
               }
             ]
           },
-          "unit": "binBps"
+          "unit": "Bps"
         },
         "overrides": []
       },
@@ -831,8 +831,19 @@
             "uid": "df2j565qfury8d"
           },
           "editorMode": "code",
+          "expr": "rate(bytes_read[5m])",
+          "legendFormat": "Чтение",
+          "range": true,
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "df2j565qfury8d"
+          },
+          "editorMode": "code",
           "expr": "rate(bytes_parsed[5m])",
-          "legendFormat": "Прочитано байт/сек",
+          "legendFormat": "Парсинг",
           "range": true,
           "refId": "A"
         },
@@ -843,7 +854,7 @@
           },
           "editorMode": "code",
           "expr": "rate(bytes_sent[5m])",
-          "legendFormat": "Отправлено байт/сек",
+          "legendFormat": "Отправлено",
           "range": true,
           "refId": "B"
         },
@@ -853,10 +864,12 @@
             "uid": "df2j565qfury8d"
           },
           "editorMode": "code",
-          "expr": "rate(exposer_transferred_bytes_total[5m])",
-          "legendFormat": "Подтверждено байт/сек",
+          "expr": "rate(bytes_confirmed[5m])",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "Подтверждено",
           "range": true,
-          "refId": "C"
+          "refId": "D"
         }
       ],
       "title": "Пропускная способность (байт/сек)",
@@ -1865,5 +1878,5 @@
   "timezone": "",
   "title": "Olr Monitoring",
   "uid": "olr-monitoring_dashboard",
-  "version": 8
+  "version": 11
 }
