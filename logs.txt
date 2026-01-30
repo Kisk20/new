@@ -200,3 +200,37 @@
 2026-01-21 20:45:38 INFO  00000 - found: SYS.LOB$ (dataobj: 10099396, obj: 10099414, columns: 18, lobs: 0, lob-idx: 0), part of cluster
 2026-01-21 20:45:38 INFO  00000 - found: SYS.LOBFRAG$ (dataobj: 624, obj: 624, columns: 16, lobs: 0, lob-idx: 0)
 2026-01-21 20:45:38 INFO  00000 - found: SYS.LOBCOMPPART$ (dataobj: 627, obj: 627, columns: 24, lobs: 0, lob-idx: 0)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ export NO_PROXY=192.168.49.2,10.96.0.0/12,192.168.59.0/24,192.168.49.0/24,192.168.39.0/24,registry-1.docker.io
+root@cdc-k8s-dev:~# kubectl -n monitoring port-forward pod/prometheus-stack-grafana-bbc948488-98bms 3000:3000
+E0130 11:33:09.663132 3652285 memcache.go:265] "Unhandled Error" err="couldn't get current server API group list: Get \"http://localhost:8080/api?timeout=32s\": dial tcp 127.0.0.1:8080: connect: connection refused"
+E0130 11:33:09.663549 3652285 memcache.go:265] "Unhandled Error" err="couldn't get current server API group list: Get \"http://localhost:8080/api?timeout=32s\": dial tcp 127.0.0.1:8080: connect: connection refused"
+E0130 11:33:09.664977 3652285 memcache.go:265] "Unhandled Error" err="couldn't get current server API group list: Get \"http://localhost:8080/api?timeout=32s\": dial tcp 127.0.0.1:8080: connect: connection refused"
+E0130 11:33:09.665257 3652285 memcache.go:265] "Unhandled Error" err="couldn't get current server API group list: Get \"http://localhost:8080/api?timeout=32s\": dial tcp 127.0.0.1:8080: connect: connection refused"
+The connection to the server localhost:8080 was refused - did you specify the right host or port?
+root@cdc-k8s-dev:~# export NO_PROXY=127.0.0.1
+root@cdc-k8s-dev:~# k config use-context minikube
+k: command not found
+root@cdc-k8s-dev:~# kubectl config use-context minikube
+error: no context exists with the name: "minikube"
+root@cdc-k8s-dev:~# docker ps -a
+CONTAINER ID   IMAGE                                 COMMAND                  CREATED        STATUS        PORTS                                                                                                                        NAMES
+2d2c442219d9   gcr.io/k8s-minikube/kicbase:v0.0.48   "/usr/local/bin/entr…"   3 months ago   Up 3 months   0.0.0.0:32798->22/tcp, 0.0.0.0:32799->2376/tcp, 0.0.0.0:32800->5000/tcp, 0.0.0.0:32801->8443/tcp, 0.0.0.0:32802->32443/tcp   minikube
+root@cdc-k8s-dev:~#
