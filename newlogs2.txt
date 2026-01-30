@@ -1,0 +1,423 @@
+2026-01-30 16:32:10 INFO  00000 OpenLogReplicator v1.8.6 (C) 2018-2025 by Adam Leszczynski (aleszczynski@bersler.com), see LICENSE file for licensing information
+2026-01-30 16:32:10 INFO  00000 arch: x86_64, build-arch: , system: Linux, release: 5.15.0-157-generic, build: Debug, compiled: 2026-01-14 18:13, modules: Kafka OCI Prometheus Protobuf
+2026-01-30 16:32:10 INFO  00000 adding source: S1
+2026-01-30 16:32:10 INFO  00000 starting Prometheus metrics, listening on: 0.0.0.0:8080
+2026-01-30 16:32:10 WARN  60037 experimental feature is used: read using ASM
+2026-01-30 16:32:10 INFO  00000 adding target: DEBEZIUM
+2026-01-30 16:32:10 INFO  00000 writer is starting with Writer: Network:0.0.0.0:27017
+2026-01-30 16:32:10 WARN  10003 file: checkpoint/XE-chkpt.json - get metadata returned: No such file or directory
+2026-01-30 16:32:20 WARN  10056 host disconnected
+2026-01-30 16:32:30 WARN  10056 host disconnected
+2026-01-30 16:32:40 WARN  10056 host disconnected
+2026-01-30 16:32:50 WARN  10056 host disconnected
+2026-01-30 16:33:00 WARN  10056 host disconnected
+2026-01-30 16:33:10 WARN  10056 host disconnected
+2026-01-30 16:33:20 WARN  10056 host disconnected
+2026-01-30 16:33:30 WARN  10056 host disconnected
+2026-01-30 16:33:40 WARN  10056 host disconnected
+2026-01-30 16:33:50 WARN  10056 host disconnected
+2026-01-30 16:34:01 WARN  10056 host disconnected
+2026-01-30 16:34:11 WARN  10056 host disconnected
+2026-01-30 16:34:21 WARN  10056 host disconnected
+2026-01-30 16:34:31 WARN  10056 host disconnected
+2026-01-30 16:34:41 WARN  10056 host disconnected
+2026-01-30 16:34:51 WARN  10056 host disconnected
+2026-01-30 16:35:01 WARN  10056 host disconnected
+2026-01-30 16:35:11 WARN  10056 host disconnected
+2026-01-30 16:35:21 WARN  10056 host disconnected
+2026-01-30 16:35:31 WARN  10056 host disconnected
+2026-01-30 16:35:41 WARN  10056 host disconnected
+2026-01-30 16:35:51 WARN  10056 host disconnected
+2026-01-30 16:36:01 WARN  10056 host disconnected
+2026-01-30 16:36:11 WARN  10056 host disconnected
+2026-01-30 16:36:21 WARN  10056 host disconnected
+2026-01-30 16:36:31 WARN  10056 host disconnected
+2026-01-30 16:36:41 WARN  10056 host disconnected
+2026-01-30 16:36:51 WARN  10056 host disconnected
+2026-01-30 16:37:01 WARN  10056 host disconnected
+2026-01-30 16:37:11 WARN  10056 host disconnected
+2026-01-30 16:37:21 WARN  10056 host disconnected
+2026-01-30 16:37:31 WARN  10056 host disconnected
+2026-01-30 16:37:41 WARN  10056 host disconnected
+2026-01-30 16:37:51 WARN  10056 host disconnected
+2026-01-30 16:38:02 WARN  10056 host disconnected
+2026-01-30 16:38:12 WARN  10056 host disconnected
+2026-01-30 16:38:22 WARN  10056 host disconnected
+2026-01-30 16:38:32 WARN  10056 host disconnected
+2026-01-30 16:38:42 WARN  10056 host disconnected
+2026-01-30 16:38:52 WARN  10056 host disconnected
+2026-01-30 16:39:02 WARN  10056 host disconnected
+2026-01-30 16:39:12 WARN  10056 host disconnected
+2026-01-30 16:39:22 WARN  10056 host disconnected
+2026-01-30 16:39:32 WARN  10056 host disconnected
+2026-01-30 16:39:42 WARN  10056 host disconnected
+2026-01-30 16:39:52 WARN  10056 host disconnected
+2026-01-30 16:40:02 WARN  10056 host disconnected
+2026-01-30 16:40:12 WARN  10056 host disconnected
+2026-01-30 16:40:22 WARN  10056 host disconnected
+2026-01-30 16:40:32 WARN  10056 host disconnected
+2026-01-30 16:40:42 WARN  10056 host disconnected
+2026-01-30 16:40:52 WARN  10056 host disconnected
+2026-01-30 16:41:02 WARN  10056 host disconnected
+2026-01-30 16:41:12 WARN  10056 host disconnected
+2026-01-30 16:41:22 WARN  10056 host disconnected
+2026-01-30 16:41:33 WARN  10056 host disconnected
+2026-01-30 16:41:43 WARN  10056 host disconnected
+2026-01-30 16:41:53 WARN  10056 host disconnected
+2026-01-30 16:42:03 WARN  10056 host disconnected
+2026-01-30 16:42:13 WARN  10056 host disconnected
+2026-01-30 16:42:23 WARN  10056 host disconnected
+2026-01-30 16:42:33 WARN  10056 host disconnected
+2026-01-30 16:42:43 WARN  10056 host disconnected
+2026-01-30 16:42:53 WARN  10056 host disconnected
+2026-01-30 16:43:03 WARN  10056 host disconnected
+2026-01-30 16:43:13 WARN  10056 host disconnected
+2026-01-30 16:43:23 WARN  10056 host disconnected
+2026-01-30 16:43:33 WARN  10056 host disconnected
+2026-01-30 16:43:43 WARN  10056 host disconnected
+2026-01-30 16:43:53 WARN  10056 host disconnected
+2026-01-30 16:44:03 WARN  10056 host disconnected
+2026-01-30 16:44:13 WARN  10056 host disconnected
+2026-01-30 16:44:23 WARN  10056 host disconnected
+2026-01-30 16:44:33 WARN  10056 host disconnected
+2026-01-30 16:44:43 WARN  10056 host disconnected
+2026-01-30 16:44:53 WARN  10056 host disconnected
+2026-01-30 16:45:03 WARN  10056 host disconnected
+2026-01-30 16:45:13 WARN  10056 host disconnected
+2026-01-30 16:45:24 WARN  10056 host disconnected
+2026-01-30 16:45:34 WARN  10056 host disconnected
+2026-01-30 16:45:44 WARN  10056 host disconnected
+2026-01-30 16:45:54 WARN  10056 host disconnected
+2026-01-30 16:46:04 WARN  10056 host disconnected
+2026-01-30 16:46:14 WARN  10056 host disconnected
+2026-01-30 16:46:24 WARN  10056 host disconnected
+2026-01-30 16:46:34 WARN  10056 host disconnected
+2026-01-30 16:46:44 WARN  10056 host disconnected
+2026-01-30 16:46:54 WARN  10056 host disconnected
+2026-01-30 16:47:04 WARN  10056 host disconnected
+2026-01-30 16:47:14 WARN  10056 host disconnected
+2026-01-30 16:47:24 WARN  10056 host disconnected
+2026-01-30 16:47:34 WARN  10056 host disconnected
+2026-01-30 16:47:44 WARN  10056 host disconnected
+2026-01-30 16:47:54 WARN  10056 host disconnected
+2026-01-30 16:48:04 WARN  10056 host disconnected
+2026-01-30 16:48:14 WARN  10056 host disconnected
+2026-01-30 16:48:24 WARN  10056 host disconnected
+2026-01-30 16:48:34 WARN  10056 host disconnected
+2026-01-30 16:48:44 WARN  10056 host disconnected
+2026-01-30 16:48:54 WARN  10056 host disconnected
+2026-01-30 16:49:04 WARN  10056 host disconnected
+2026-01-30 16:49:14 WARN  10056 host disconnected
+2026-01-30 16:49:24 WARN  10056 host disconnected
+2026-01-30 16:49:35 WARN  10056 host disconnected
+2026-01-30 16:49:45 WARN  10056 host disconnected
+2026-01-30 16:49:55 WARN  10056 host disconnected
+2026-01-30 16:50:05 WARN  10056 host disconnected
+2026-01-30 16:50:15 WARN  10056 host disconnected
+2026-01-30 16:50:25 WARN  10056 host disconnected
+2026-01-30 16:50:35 WARN  10056 host disconnected
+2026-01-30 16:50:45 WARN  10056 host disconnected
+2026-01-30 16:50:55 WARN  10056 host disconnected
+2026-01-30 16:51:05 WARN  10056 host disconnected
+2026-01-30 16:51:15 WARN  10056 host disconnected
+2026-01-30 16:51:25 WARN  10056 host disconnected
+2026-01-30 16:51:35 WARN  10056 host disconnected
+2026-01-30 16:51:45 WARN  10056 host disconnected
+2026-01-30 16:51:55 WARN  10056 host disconnected
+2026-01-30 16:52:05 WARN  10056 host disconnected
+2026-01-30 16:52:15 WARN  10056 host disconnected
+2026-01-30 16:52:25 WARN  10056 host disconnected
+2026-01-30 16:52:35 WARN  10056 host disconnected
+2026-01-30 16:52:45 WARN  10056 host disconnected
+2026-01-30 16:52:55 WARN  10056 host disconnected
+2026-01-30 16:53:06 WARN  10056 host disconnected
+2026-01-30 16:53:16 WARN  10056 host disconnected
+2026-01-30 16:53:26 WARN  10056 host disconnected
+2026-01-30 16:53:36 WARN  10056 host disconnected
+2026-01-30 16:53:46 WARN  10056 host disconnected
+2026-01-30 16:53:56 WARN  10056 host disconnected
+2026-01-30 16:54:06 WARN  10056 host disconnected
+2026-01-30 16:54:16 WARN  10056 host disconnected
+2026-01-30 16:54:26 WARN  10056 host disconnected
+2026-01-30 16:54:36 WARN  10056 host disconnected
+2026-01-30 16:54:46 WARN  10056 host disconnected
+2026-01-30 16:54:56 WARN  10056 host disconnected
+2026-01-30 16:55:06 WARN  10056 host disconnected
+2026-01-30 16:55:16 WARN  10056 host disconnected
+2026-01-30 16:55:26 WARN  10056 host disconnected
+2026-01-30 16:55:36 WARN  10056 host disconnected
+2026-01-30 16:55:46 WARN  10056 host disconnected
+2026-01-30 16:55:56 WARN  10056 host disconnected
+2026-01-30 16:56:06 WARN  10056 host disconnected
+2026-01-30 16:56:16 WARN  10056 host disconnected
+2026-01-30 16:56:26 WARN  10056 host disconnected
+2026-01-30 16:56:36 WARN  10056 host disconnected
+2026-01-30 16:56:46 WARN  10056 host disconnected
+2026-01-30 16:56:57 WARN  10056 host disconnected
+2026-01-30 16:57:07 WARN  10056 host disconnected
+2026-01-30 16:57:17 WARN  10056 host disconnected
+2026-01-30 16:57:27 WARN  10056 host disconnected
+2026-01-30 16:57:37 WARN  10056 host disconnected
+2026-01-30 16:57:47 WARN  10056 host disconnected
+2026-01-30 16:57:57 WARN  10056 host disconnected
+2026-01-30 16:58:07 WARN  10056 host disconnected
+2026-01-30 16:58:17 WARN  10056 host disconnected
+2026-01-30 16:58:27 WARN  10056 host disconnected
+2026-01-30 16:58:37 WARN  10056 host disconnected
+2026-01-30 16:58:47 WARN  10056 host disconnected
+2026-01-30 16:58:57 WARN  10056 host disconnected
+2026-01-30 16:59:07 WARN  10056 host disconnected
+2026-01-30 16:59:17 WARN  10056 host disconnected
+2026-01-30 16:59:27 WARN  10056 host disconnected
+2026-01-30 16:59:37 WARN  10056 host disconnected
+2026-01-30 16:59:47 WARN  10056 host disconnected
+2026-01-30 16:59:57 WARN  10056 host disconnected
+2026-01-30 17:00:07 WARN  10056 host disconnected
+2026-01-30 17:00:17 WARN  10056 host disconnected
+2026-01-30 17:00:27 WARN  10056 host disconnected
+2026-01-30 17:00:37 WARN  10056 host disconnected
+2026-01-30 17:00:48 WARN  10056 host disconnected
+2026-01-30 17:00:58 WARN  10056 host disconnected
+2026-01-30 17:01:08 WARN  10056 host disconnected
+2026-01-30 17:01:18 WARN  10056 host disconnected
+2026-01-30 17:01:28 WARN  10056 host disconnected
+2026-01-30 17:01:38 WARN  10056 host disconnected
+2026-01-30 17:01:48 WARN  10056 host disconnected
+2026-01-30 17:01:58 WARN  10056 host disconnected
+2026-01-30 17:02:08 WARN  10056 host disconnected
+2026-01-30 17:02:18 WARN  10056 host disconnected
+2026-01-30 17:02:28 WARN  10056 host disconnected
+2026-01-30 17:02:38 WARN  10056 host disconnected
+2026-01-30 17:02:48 WARN  10056 host disconnected
+2026-01-30 17:02:58 WARN  10056 host disconnected
+2026-01-30 17:03:08 WARN  10056 host disconnected
+2026-01-30 17:03:18 WARN  10056 host disconnected
+2026-01-30 17:03:28 WARN  10056 host disconnected
+2026-01-30 17:03:38 WARN  10056 host disconnected
+2026-01-30 17:03:48 WARN  10056 host disconnected
+2026-01-30 17:03:59 WARN  10056 host disconnected
+2026-01-30 17:04:09 WARN  10056 host disconnected
+2026-01-30 17:04:19 WARN  10056 host disconnected
+2026-01-30 17:04:29 WARN  10056 host disconnected
+2026-01-30 17:04:39 WARN  10056 host disconnected
+2026-01-30 17:04:49 WARN  10056 host disconnected
+2026-01-30 17:04:59 WARN  10056 host disconnected
+2026-01-30 17:05:09 WARN  10056 host disconnected
+2026-01-30 17:05:19 WARN  10056 host disconnected
+2026-01-30 17:05:29 WARN  10056 host disconnected
+2026-01-30 17:05:39 WARN  10056 host disconnected
+2026-01-30 17:05:49 WARN  10056 host disconnected
+2026-01-30 17:05:59 WARN  10056 host disconnected
+2026-01-30 17:06:09 WARN  10056 host disconnected
+2026-01-30 17:06:19 WARN  10056 host disconnected
+2026-01-30 17:06:29 WARN  10056 host disconnected
+2026-01-30 17:06:39 WARN  10056 host disconnected
+2026-01-30 17:06:49 WARN  10056 host disconnected
+2026-01-30 17:06:59 WARN  10056 host disconnected
+2026-01-30 17:07:09 WARN  10056 host disconnected
+2026-01-30 17:07:19 WARN  10056 host disconnected
+2026-01-30 17:07:29 WARN  10056 host disconnected
+2026-01-30 17:07:39 WARN  10056 host disconnected
+2026-01-30 17:07:50 WARN  10056 host disconnected
+2026-01-30 17:08:00 WARN  10056 host disconnected
+2026-01-30 17:08:10 WARN  10056 host disconnected
+2026-01-30 17:08:20 WARN  10056 host disconnected
+2026-01-30 17:08:30 WARN  10056 host disconnected
+2026-01-30 17:08:40 WARN  10056 host disconnected
+2026-01-30 17:08:50 WARN  10056 host disconnected
+2026-01-30 17:09:00 WARN  10056 host disconnected
+2026-01-30 17:09:10 WARN  10056 host disconnected
+2026-01-30 17:09:20 WARN  10056 host disconnected
+2026-01-30 17:09:30 WARN  10056 host disconnected
+2026-01-30 17:09:40 WARN  10056 host disconnected
+2026-01-30 17:09:50 WARN  10056 host disconnected
+2026-01-30 17:10:00 WARN  10056 host disconnected
+2026-01-30 17:10:10 WARN  10056 host disconnected
+2026-01-30 17:10:20 WARN  10056 host disconnected
+2026-01-30 17:10:30 WARN  10056 host disconnected
+2026-01-30 17:10:40 WARN  10056 host disconnected
+2026-01-30 17:10:50 WARN  10056 host disconnected
+2026-01-30 17:11:00 WARN  10056 host disconnected
+2026-01-30 17:11:10 WARN  10056 host disconnected
+2026-01-30 17:11:20 WARN  10056 host disconnected
+2026-01-30 17:11:30 WARN  10056 host disconnected
+2026-01-30 17:11:41 WARN  10056 host disconnected
+2026-01-30 17:11:51 WARN  10056 host disconnected
+2026-01-30 17:12:01 WARN  10056 host disconnected
+2026-01-30 17:12:11 WARN  10056 host disconnected
+2026-01-30 17:12:21 WARN  10056 host disconnected
+2026-01-30 17:12:31 WARN  10056 host disconnected
+2026-01-30 17:12:41 WARN  10056 host disconnected
+2026-01-30 17:12:51 WARN  10056 host disconnected
+2026-01-30 17:13:01 WARN  10056 host disconnected
+2026-01-30 17:13:11 WARN  10056 host disconnected
+2026-01-30 17:13:21 WARN  10056 host disconnected
+2026-01-30 17:13:31 WARN  10056 host disconnected
+2026-01-30 17:13:41 WARN  10056 host disconnected
+2026-01-30 17:13:51 WARN  10056 host disconnected
+2026-01-30 17:14:01 WARN  10056 host disconnected
+2026-01-30 17:14:11 WARN  10056 host disconnected
+2026-01-30 17:14:21 WARN  10056 host disconnected
+2026-01-30 17:14:31 WARN  10056 host disconnected
+2026-01-30 17:14:41 WARN  10056 host disconnected
+2026-01-30 17:14:51 WARN  10056 host disconnected
+2026-01-30 17:15:01 WARN  10056 host disconnected
+2026-01-30 17:15:11 WARN  10056 host disconnected
+2026-01-30 17:15:22 WARN  10056 host disconnected
+2026-01-30 17:15:32 WARN  10056 host disconnected
+2026-01-30 17:15:42 WARN  10056 host disconnected
+2026-01-30 17:15:52 WARN  10056 host disconnected
+2026-01-30 17:16:02 WARN  10056 host disconnected
+2026-01-30 17:16:12 WARN  10056 host disconnected
+2026-01-30 17:16:22 WARN  10056 host disconnected
+2026-01-30 17:16:32 WARN  10056 host disconnected
+2026-01-30 17:16:42 WARN  10056 host disconnected
+2026-01-30 17:16:52 WARN  10056 host disconnected
+2026-01-30 17:17:02 WARN  10056 host disconnected
+2026-01-30 17:17:12 WARN  10056 host disconnected
+2026-01-30 17:17:22 WARN  10056 host disconnected
+2026-01-30 17:17:32 WARN  10056 host disconnected
+2026-01-30 17:17:42 WARN  10056 host disconnected
+2026-01-30 17:17:52 WARN  10056 host disconnected
+2026-01-30 17:18:02 WARN  10056 host disconnected
+2026-01-30 17:18:12 WARN  10056 host disconnected
+2026-01-30 17:18:22 WARN  10056 host disconnected
+2026-01-30 17:18:32 WARN  10056 host disconnected
+2026-01-30 17:18:42 WARN  10056 host disconnected
+2026-01-30 17:18:52 WARN  10056 host disconnected
+2026-01-30 17:19:03 WARN  10056 host disconnected
+2026-01-30 17:19:13 WARN  10056 host disconnected
+2026-01-30 17:19:23 WARN  10056 host disconnected
+2026-01-30 17:19:33 WARN  10056 host disconnected
+2026-01-30 17:19:43 WARN  10056 host disconnected
+2026-01-30 17:19:53 WARN  10056 host disconnected
+2026-01-30 17:20:03 WARN  10056 host disconnected
+2026-01-30 17:20:13 WARN  10056 host disconnected
+2026-01-30 17:20:23 WARN  10056 host disconnected
+2026-01-30 17:20:33 WARN  10056 host disconnected
+2026-01-30 17:20:43 WARN  10056 host disconnected
+2026-01-30 17:20:53 WARN  10056 host disconnected
+2026-01-30 17:21:03 WARN  10056 host disconnected
+2026-01-30 17:21:13 WARN  10056 host disconnected
+2026-01-30 17:21:23 WARN  10056 host disconnected
+2026-01-30 17:21:33 WARN  10056 host disconnected
+2026-01-30 17:21:43 WARN  10056 host disconnected
+2026-01-30 17:21:53 WARN  10056 host disconnected
+2026-01-30 17:22:03 WARN  10056 host disconnected
+2026-01-30 17:22:13 WARN  10056 host disconnected
+2026-01-30 17:22:23 WARN  10056 host disconnected
+2026-01-30 17:22:33 WARN  10056 host disconnected
+2026-01-30 17:22:43 WARN  10056 host disconnected
+2026-01-30 17:22:54 WARN  10056 host disconnected
+2026-01-30 17:23:04 WARN  10056 host disconnected
+2026-01-30 17:23:14 WARN  10056 host disconnected
+2026-01-30 17:23:24 WARN  10056 host disconnected
+2026-01-30 17:23:34 WARN  10056 host disconnected
+2026-01-30 17:23:44 WARN  10056 host disconnected
+2026-01-30 17:23:54 WARN  10056 host disconnected
+2026-01-30 17:24:04 WARN  10056 host disconnected
+2026-01-30 17:24:14 WARN  10056 host disconnected
+2026-01-30 17:24:24 WARN  10056 host disconnected
+2026-01-30 17:24:34 WARN  10056 host disconnected
+2026-01-30 17:24:44 WARN  10056 host disconnected
+2026-01-30 17:24:54 WARN  10056 host disconnected
+2026-01-30 17:25:04 WARN  10056 host disconnected
+2026-01-30 17:25:14 WARN  10056 host disconnected
+2026-01-30 17:25:24 WARN  10056 host disconnected
+2026-01-30 17:25:34 WARN  10056 host disconnected
+2026-01-30 17:25:44 WARN  10056 host disconnected
+2026-01-30 17:25:54 WARN  10056 host disconnected
+2026-01-30 17:26:04 WARN  10056 host disconnected
+2026-01-30 17:26:14 WARN  10056 host disconnected
+2026-01-30 17:26:24 WARN  10056 host disconnected
+2026-01-30 17:26:35 WARN  10056 host disconnected
+2026-01-30 17:26:45 WARN  10056 host disconnected
+2026-01-30 17:26:55 WARN  10056 host disconnected
+2026-01-30 17:27:05 WARN  10056 host disconnected
+2026-01-30 17:27:15 WARN  10056 host disconnected
+2026-01-30 17:27:25 WARN  10056 host disconnected
+2026-01-30 17:27:35 WARN  10056 host disconnected
+2026-01-30 17:27:45 WARN  10056 host disconnected
+2026-01-30 17:27:55 WARN  10056 host disconnected
+2026-01-30 17:28:05 WARN  10056 host disconnected
+2026-01-30 17:28:15 WARN  10056 host disconnected
+2026-01-30 17:28:25 WARN  10056 host disconnected
+2026-01-30 17:28:35 WARN  10056 host disconnected
+2026-01-30 17:28:45 WARN  10056 host disconnected
+2026-01-30 17:28:55 WARN  10056 host disconnected
+2026-01-30 17:29:05 WARN  10056 host disconnected
+2026-01-30 17:29:15 WARN  10056 host disconnected
+2026-01-30 17:29:20 INFO  00000 client requested to start from scn: 10327883980239
+2026-01-30 17:29:20 INFO  00000 connecting to the database instance of XE to //10.15.123.74:1522/CBS3BT
+2026-01-30 17:29:20 INFO  00000 connecting to the ASM instance of XE to 10.15.123.74:1522/+ASM
+2026-01-30 17:29:20 INFO  00000 version: Oracle Database 19c Enterprise Edition Release 19.0.0.0.0 - Production, context: cbs3, resetlogs: 0, activation: 0, con_id: 0, con_name: cbs3
+2026-01-30 17:29:21 INFO  00000 loading character mapping for AL32UTF8
+2026-01-30 17:29:21 INFO  00000 loading character mapping for AL16UTF16
+2026-01-30 17:29:21 INFO  00000 online redo log: +REDO1/CBS3BT/ONLINELOG/group_31.258.1223391527
+2026-01-30 17:29:21 INFO  00000 online redo log: +REDO1/CBS3BT/ONLINELOG/group_32.259.1223391543
+2026-01-30 17:29:21 INFO  00000 online redo log: +REDO1/CBS3BT/ONLINELOG/group_33.260.1223391561
+2026-01-30 17:29:21 INFO  00000 online redo log: +REDO1/CBS3BT/ONLINELOG/group_34.261.1223391575
+2026-01-30 17:29:21 INFO  00000 online redo log: +REDO1/CBS3BT/ONLINELOG/group_35.262.1223391591
+2026-01-30 17:29:21 INFO  00000 online redo log: +REDO1/CBS3BT/ONLINELOG/group_36.263.1223391605
+2026-01-30 17:29:21 INFO  00000 online redo log: +REDO1/CBS3BT/ONLINELOG/group_37.264.1223391619
+2026-01-30 17:29:21 INFO  00000 online redo log: +REDO1/CBS3BT/ONLINELOG/group_38.272.1223391635
+2026-01-30 17:29:21 INFO  00000 timezone: +05:00, db-timezone: +05:00, log-timezone: +05:00, host-timezone: +05:00
+2026-01-30 17:29:21 INFO  00000 Replicator for XE in ASM mode is starting from scn: 10327883980239
+2026-01-30 17:29:21 INFO  00000 current resetlogs is: 1223341553
+2026-01-30 17:29:21 INFO  00000 first data SCN: 10327883980239
+2026-01-30 17:29:22 INFO  00000 starting sequence not found - starting with new batch with seq: 713
+2026-01-30 17:29:22 INFO  00000 reading dictionaries for scn: 10327883980239
+2026-01-30 17:30:47 INFO  00000 - found: COLVIR.T_LIM (dataobj: 109898, obj: 109898, columns: 14, lobs: 0, lob-idx: 0)
+2026-01-30 17:30:47 INFO  00000 - found: XDB.X$QN0PKE0RID1H172V0L00034UWLGA (dataobj: 69842, obj: 69842, columns: 4, lobs: 0, lob-idx: 0)
+2026-01-30 17:30:47 INFO  00000 - found: XDB.X$NM0PKE0RID1H172V0L00034UWLGA (dataobj: 69841, obj: 69841, columns: 2, lobs: 0, lob-idx: 0)
+2026-01-30 17:30:47 INFO  00000 - found: XDB.XDB$TTSET (dataobj: 69838, obj: 69838, columns: 4, lobs: 0, lob-idx: 0)
+2026-01-30 17:30:47 INFO  00000 - found: SYS.CCOL$ (dataobj: 29, obj: 32, columns: 11, lobs: 0, lob-idx: 0), part of cluster
+2026-01-30 17:30:47 INFO  00000 - found: SYS.USER$ (dataobj: 10099398, obj: 10099402, columns: 30, lobs: 0, lob-idx: 0), part of cluster
+2026-01-30 17:30:47 INFO  00000 - found: SYS.ECOL$ (dataobj: 123, obj: 123, columns: 4, lobs: 0, lob-idx: 0)
+2026-01-30 17:30:47 INFO  00000 - found: SYS.TAB$ (dataobj: 10099396, obj: 10099407, columns: 45, lobs: 0, lob-idx: 0), part of cluster
+2026-01-30 17:30:47 INFO  00000 - found: XDB.X$PT0PKE0RID1H172V0L00034UWLGA (dataobj: 69843, obj: 69843, columns: 2, lobs: 0, lob-idx: 0)
+2026-01-30 17:30:47 INFO  00000 - found: SYS.TABPART$ (dataobj: 591, obj: 591, columns: 26, lobs: 0, lob-idx: 0)
+2026-01-30 17:30:47 INFO  00000 - found: SYS.CDEF$ (dataobj: 29, obj: 31, columns: 21, lobs: 0, lob-idx: 0), part of cluster
+2026-01-30 17:30:47 INFO  00000 - found: SYS.TABSUBPART$ (dataobj: 603, obj: 603, columns: 26, lobs: 0, lob-idx: 0)
+2026-01-30 17:30:47 INFO  00000 - found: SYS.COL$ (dataobj: 10099396, obj: 10099403, columns: 37, lobs: 0, lob-idx: 0), part of cluster
+2026-01-30 17:30:47 INFO  00000 - found: SYS.TS$ (dataobj: 6, obj: 16, columns: 32, lobs: 0, lob-idx: 0), part of cluster
+2026-01-30 17:30:47 INFO  00000 - found: SYS.DEFERRED_STG$ (dataobj: 132, obj: 132, columns: 25, lobs: 0, lob-idx: 0)
+2026-01-30 17:30:47 INFO  00000 - found: SYS.OBJ$ (dataobj: 10099390, obj: 10099390, columns: 37, lobs: 0, lob-idx: 0)
+2026-01-30 17:30:47 INFO  00000 - found: SYS.TABCOMPART$ (dataobj: 613, obj: 613, columns: 35, lobs: 0, lob-idx: 0)
+2026-01-30 17:30:47 INFO  00000 - found: SYS.LOB$ (dataobj: 10099396, obj: 10099414, columns: 18, lobs: 0, lob-idx: 0), part of cluster
+2026-01-30 17:30:47 INFO  00000 - found: SYS.LOBFRAG$ (dataobj: 624, obj: 624, columns: 16, lobs: 0, lob-idx: 0)
+2026-01-30 17:30:47 INFO  00000 - found: SYS.LOBCOMPPART$ (dataobj: 627, obj: 627, columns: 24, lobs: 0, lob-idx: 0)
+2026-01-30 17:30:47 INFO  00000 last confirmed scn: 10327883980239, starting sequence: 713, offset: 0
+2026-01-30 17:30:47 INFO  00000 resume writer
+2026-01-30 17:30:47 INFO  00000 streaming to client
+2026-01-30 17:30:48 INFO  00000 found redo log version: 19.0.0, activation: 2919854493, resetlogs: 1223341553, page: 512, sequence: 713, SID: CBS3, endian: BIG
+2026-01-30 17:30:48 INFO  00000 processing redo log: group: 0 scn: 10327876737997 to 10327891889136 seq: 713 path: +ARC/CBS3BT/ARCHIVELOG/2026_01_30/thread_1_seq_713.277.1223916365 offset: 1024
+2026-01-30 17:30:48 INFO  00000 new activation detected: 2919854493
+2026-01-30 17:30:48 WARN  60010 no match found for transaction rollback, skipping, SLT: 26, USN: 1123
+2026-01-30 17:30:48 WARN  60010 no match found for transaction rollback, skipping, SLT: 32, USN: 1568
+2026-01-30 17:31:16 INFO  00000 connecting to the database instance of XE to //10.15.123.74:1522/CBS3BT
+2026-01-30 17:31:16 INFO  00000 processing redo log: group: 0 scn: 10327891889136 to 10327907477911 seq: 714 path: +ARC/CBS3BT/ARCHIVELOG/2026_01_30/thread_1_seq_714.278.1223917265 offset: 1024
+2026-01-30 17:31:46 INFO  00000 connecting to the database instance of XE to //10.15.123.74:1522/CBS3BT
+2026-01-30 17:31:47 INFO  00000 processing redo log: group: 0 scn: 10327907477911 to 10327921405775 seq: 715 path: +ARC/CBS3BT/ARCHIVELOG/2026_01_30/thread_1_seq_715.279.1223918163 offset: 1024
+2026-01-30 17:32:11 INFO  00000 connecting to the database instance of XE to //10.15.123.74:1522/CBS3BT
+2026-01-30 17:32:11 INFO  00000 processing redo log: group: 0 scn: 10327921405775 to 10327933253083 seq: 716 path: +ARC/CBS3BT/ARCHIVELOG/2026_01_30/thread_1_seq_716.270.1223919065 offset: 1024
+2026-01-30 17:32:23 INFO  00000 connecting to the database instance of XE to //10.15.123.74:1522/CBS3BT
+2026-01-30 17:32:24 INFO  00000 processing redo log: group: 32 scn: 10327933253083 to 0 seq: 717 path: +REDO1/CBS3BT/ONLINELOG/group_32.259.1223391543 offset: 1024
+2026-01-30 17:46:03 INFO  00000 processing redo log: group: 31 scn: 10327948223875 to 0 seq: 718 path: +REDO1/CBS3BT/ONLINELOG/group_31.258.1223391527 offset: 1024
+2026-01-30 18:01:03 INFO  00000 processing redo log: group: 33 scn: 10327960881504 to 0 seq: 719 path: +REDO1/CBS3BT/ONLINELOG/group_33.260.1223391561 offset: 1024
+2026-01-30 18:16:04 INFO  00000 processing redo log: group: 34 scn: 10327970465389 to 0 seq: 720 path: +REDO1/CBS3BT/ONLINELOG/group_34.261.1223391575 offset: 1024
+2026-01-30 18:31:04 INFO  00000 processing redo log: group: 35 scn: 10327978545877 to 0 seq: 721 path: +REDO1/CBS3BT/ONLINELOG/group_35.262.1223391591 offset: 1024
+2026-01-30 18:46:03 INFO  00000 processing redo log: group: 36 scn: 10327985723594 to 0 seq: 722 path: +REDO1/CBS3BT/ONLINELOG/group_36.263.1223391605 offset: 1024
+2026-01-30 19:01:04 INFO  00000 processing redo log: group: 37 scn: 10327992517086 to 0 seq: 723 path: +REDO1/CBS3BT/ONLINELOG/group_37.264.1223391619 offset: 1024
+2026-01-30 19:18:01 INFO  00000 processing redo log: group: 38 scn: 10327999457127 to 10328000211536 seq: 724 path: +REDO1/CBS3BT/ONLINELOG/group_38.272.1223391635 offset: 1024
+2026-01-30 19:20:49 INFO  00000 processing redo log: group: 32 scn: 10328000211536 to 0 seq: 725 path: +REDO1/CBS3BT/ONLINELOG/group_32.259.1223391543 offset: 1024
+2026-01-30 19:33:15 INFO  00000 processing redo log: group: 31 scn: 10328001754200 to 10328002307321 seq: 726 path: +REDO1/CBS3BT/ONLINELOG/group_31.258.1223391527 offset: 1024
+2026-01-30 19:46:00 INFO  00000 processing redo log: group: 33 scn: 10328002307321 to 10328007468123 seq: 727 path: +REDO1/CBS3BT/ONLINELOG/group_33.260.1223391561 offset: 1024
+2026-01-30 19:49:17 INFO  00000 processing redo log: group: 34 scn: 10328007468123 to 0 seq: 728 path: +REDO1/CBS3BT/ONLINELOG/group_34.261.1223391575 offset: 1024
+2026-01-30 19:55:18 INFO  00000 processing redo log: group: 35 scn: 10328018429735 to 0 seq: 729 path: +REDO1/CBS3BT/ONLINELOG/group_35.262.1223391591 offset: 1024
+2026-01-30 20:01:03 INFO  00000 processing redo log: group: 36 scn: 10328025411511 to 0 seq: 730 path: +REDO1/CBS3BT/ONLINELOG/group_36.263.1223391605 offset: 1024
+2026-01-30 20:16:04 INFO  00000 processing redo log: group: 37 scn: 10328032269163 to 0 seq: 731 path: +REDO1/CBS3BT/ONLINELOG/group_37.264.1223391619 offset: 1024
+2026-01-30 20:31:05 INFO  00000 processing redo log: group: 38 scn: 10328038263041 to 0 seq: 732 path: +REDO1/CBS3BT/ONLINELOG/group_38.272.1223391635 offset: 1024
+2026-01-30 20:47:49 INFO  00000 processing redo log: group: 32 scn: 10328053091135 to 10328063257445 seq: 733 path: +REDO1/CBS3BT/ONLINELOG/group_32.259.1223391543 offset: 1024
+2026-01-30 21:00:01 INFO  00000 processing redo log: group: 31 scn: 10328063257445 to 0 seq: 734 path: +REDO1/CBS3BT/ONLINELOG/group_31.258.1223391527 offset: 1024
+2026-01-30 21:14:48 INFO  00000 processing redo log: group: 33 scn: 10328076445298 to 10328089919310 seq: 735 path: +REDO1/CBS3BT/ONLINELOG/group_33.260.1223391561 offset: 1024
