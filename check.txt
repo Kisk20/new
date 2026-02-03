@@ -1,0 +1,141 @@
+1. Проверка лимита дескрипторов
+bash
+# Проверить текущие лимиты
+ulimit -n
+ulimit -Sn  # soft limit
+ulimit -Hn  # hard limit
+
+# Проверить содержимое limits.conf
+cat /etc/security/limits.conf | grep -i nofile
+
+# Проверить системные лимиты
+cat /proc/sys/fs/file-max
+cat /proc/sys/fs/nr_open
+2. Проверка привязки к CPU
+bash
+# Для systemd сервисов
+sudo systemctl status <service_name> | grep -A5 -B5 CPUAffinity
+
+# Посмотреть юнит-файл
+sudo systemctl cat <service_name>
+
+# Или напрямую
+cat /etc/systemd/system/<service_name>.service | grep CPUAffinity
+3. Проверка MTU на сетевом интерфейсе
+bash
+# Способ 1: через ip (современный)
+ip link show | grep mtu
+
+# Способ 2: через ifconfig (если установлен)
+ifconfig | grep mtu
+
+# Способ 3: для конкретного интерфейса
+ip link show eth0 | grep mtu
+# или
+cat /sys/class/net/eth0/mtu
+4. Проверка multiqueue
+bash
+# Установить ethtool если нет
+sudo apt install ethtool -y
+
+# Проверить multiqueue
+sudo ethtool -l eth0  # замените eth0 на ваш интерфейс
+
+# Вывод должен содержать:
+# Combined:    X (больше 1 для multiqueue)
+5. Проверка Work_dir Tarantool
+bash
+# Найти где расположены work_dir
+ps aux | grep tarantool | grep -E "work_dir|snap_dir|wal_dir"
+
+# Проверить тип файловой системы
+df -Th /path/to/tarantool/work_dir
+
+# Проверить диск
+lsblk -o NAME,ROTA,TYPE,SIZE,MODEL /dev/nvme0n1  # для NVMe
+6. Проверка pollMode в конфигурации Tarantool
+bash
+# Поиск в конфигурационных файлах
+grep -r "pollMode" /etc/tarantool/instances.enabled/
+grep -r "poll_mode" /etc/tarantool/instances.enabled/
+
+# Проверить через console Tarantool
+tarantoolctl enter <instance_name>
+> box.cfg.replication
+7. Проверка логирования
+bash
+# Искать настройки логирования
+grep -r "log" /etc/tarantool/instances.enabled/*.lua
+grep -r "logger" /etc/tarantool/instances.enabled/*.lua
+
+# Проверить куда пишут логи
+sudo ls -la /var/log/tarantool/
+8. Проверка переменных окружения Go
+bash
+# Для systemd сервисов
+sudo systemctl show <service_name> | grep -E "Environment|GOMAXPROCS|GOMEMLIMIT|GOGC"
+
+# Посмотреть процесс
+ps aux | grep <component_name> | head -1
+
+# Или через /proc
+cat /proc/$(pidof <component_name>)/environ | tr '\0' '\n' | grep -E "GOMAXPROCS|GOMEMLIMIT|GOGC"
+9. Проверка размеров каналов и настроек батчевания
+bash
+# Эти настройки обычно в конфигурационных файлах компонентов
+# Найдите конфиги и проверьте:
+grep -r "channel\|batch\|queue" /etc/<component_name>/ 2>/dev/null
+
+# Для Tarantool проверьте очереди
+tarantoolctl enter <instance_name>
+> require('stat').queues()
+Скрипт для автоматической проверки
+bash
+#!/bin/bash
+
+echo "=== Проверка конфигурации системы ==="
+
+echo -e "\n1. Лимиты дескрипторов:"
+echo "Soft limit: $(ulimit -Sn)"
+echo "Hard limit: $(ulimit -Hn)"
+echo "System limit: $(cat /proc/sys/fs/file-max)"
+
+echo -e "\n2. Привязка к CPU для сервисов:"
+sudo systemctl list-units --type=service | grep -E "(tarantool|ваш_сервис)" | while read service; do
+    svc=$(echo $service | awk '{print $1}')
+    echo "Сервис: $svc"
+    sudo systemctl cat $svc 2>/dev/null | grep -i cpuaffinity || echo "  CPUAffinity не настроен"
+done
+
+echo -e "\n3. Сетевые интерфейсы:"
+for iface in $(ip link show | grep -E "^[0-9]+:" | awk -F: '{print $2}' | tr -d ' '); do
+    mtu=$(cat /sys/class/net/$iface/mtu 2>/dev/null)
+    echo "$iface: MTU=$mtu"
+done
+
+echo -e "\n4. Проверка multiqueue:"
+for iface in $(ip link show | grep -E "^[0-9]+:" | awk -F: '{print $2}' | tr -d ' '); do
+    echo -n "$iface: "
+    sudo ethtool -l $iface 2>/dev/null | grep "Combined:" | head -1 || echo "не поддерживает"
+done
+
+echo -e "\n5. Диски:"
+lsblk -o NAME,TYPE,SIZE,ROTA,MODEL,MOUNTPOINT
+
+echo -e "\n6. Переменные окружения Go процессов:"
+ps aux | grep -E "\.go|go_binary" | grep -v grep | while read line; do
+    pid=$(echo $line | awk '{print $2}')
+    echo "PID $pid:"
+    cat /proc/$pid/environ 2>/dev/null | tr '\0' '\n' | grep -E "^GOMAXPROCS|^GOMEMLIMIT|^GOGC" || echo "  Не найдены"
+done
+Рекомендации по мониторингу:
+Для каналов и батчевания используйте:
+
+bash
+# Мониторинг очередей Tarantool
+tarantoolctl enter <instance> <<<'return require("stat").queues()'
+
+# Мониторинг системы
+vmstat 1
+iostat -x 1
+dstat -tcmnd --disk-util
