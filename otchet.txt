@@ -42,3 +42,57 @@ RSS hash function:
     toeplitz: on
     xor: off
     crc32: off
+    
+    
+    
+ lsblk
+NAME             MAJ:MIN RM  SIZE RO TYPE MOUNTPOINTS
+loop0              7:0    0 55.4M  1 loop /snap/core18/1944
+loop1              7:1    0 69.9M  1 loop /snap/lxd/19188
+loop2              7:2    0 31.1M  1 loop /snap/snapd/10707
+sda                8:0    0  150G  0 disk
+├─sda1             8:1    0    1M  0 part
+├─sda2             8:2    0    1G  0 part /boot
+└─sda3             8:3    0  149G  0 part
+  ├─vg1-lv--swap 253:0    0    8G  0 lvm  [SWAP]
+  └─vg1-lv--root 253:1    0  141G  0 lvm  /
+sr0               11:0    1 1024M  0 rom
+root@cdc-openlog-dev:~/new# df -Th
+df: /db01/oradata/amm/archive: Stale file handle
+df: /db01/oradata/amm/redo: Stale file handle
+df: /db01/oradata/amm/redo2: Stale file handle
+df: /db01/oradata/amm/redo3: Stale file handle
+df: /db01/oradata/amm/redo4: Stale file handle
+Filesystem               Type   Size  Used Avail Use% Mounted on
+tmpfs                    tmpfs  2.4G  2.8M  2.4G   1% /run
+/dev/mapper/vg1-lv--root xfs    141G   40G  102G  28% /
+tmpfs                    tmpfs   12G     0   12G   0% /dev/shm
+tmpfs                    tmpfs  5.0M     0  5.0M   0% /run/lock
+/dev/sda2                xfs   1014M  293M  722M  29% /boot
+tmpfs                    tmpfs  2.4G  8.0K  2.4G   1% /run/user/1023
+tmpfs                    tmpfs  2.4G  8.0K  2.4G   1% /run/user/1025
+root@cdc-openlog-dev:~/new# lshw -class disc
+  *-disk
+       description: SCSI Disk
+       product: Virtual disk
+       vendor: VMware
+       physical id: 0.0.0
+       bus info: scsi@32:0.0.0
+       logical name: /dev/sda
+       version: 2.0
+       size: 150GiB (161GB)
+       capabilities: gpt-1.00 partitioned partitioned:gpt
+       configuration: ansiversion=6 guid=03edeb65-2580-4115-905b-550e1940be32 logicalsectorsize=512 sectorsize=512
+  *-cdrom
+       description: DVD-RAM writer
+       product: VMware SATA CD00
+       vendor: NECVMWar
+       physical id: 0.0.0
+       bus info: scsi@2:0.0.0
+       logical name: /dev/cdrom
+       logical name: /dev/sr0
+       version: 1.00
+       capabilities: removable audio cd-r cd-rw dvd dvd-r dvd-ram
+       configuration: ansiversion=5 status=open
+root@cdc-openlog-dev:~/new#
+
