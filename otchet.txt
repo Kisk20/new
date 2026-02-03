@@ -18,3 +18,27 @@ lsblk -o NAME,ROTA,TYPE,SIZE,MODEL /dev/nvme0n1
 lsblk: /dev/nvme0n1: not a block device
 
 
+ethtool -x ens160
+RX flow hash indirection table for ens160 with 8 RX ring(s):
+    0:      0     1     2     3     4     5     6     7
+    8:      0     1     2     3     4     5     6     7
+   16:      0     1     2     3     4     5     6     7
+   24:      0     1     2     3     4     5     6     7
+   32:      0     1     2     3     4     5     6     7
+   40:      0     1     2     3     4     5     6     7
+   48:      0     1     2     3     4     5     6     7
+   56:      0     1     2     3     4     5     6     7
+   64:      0     1     2     3     4     5     6     7
+   72:      0     1     2     3     4     5     6     7
+   80:      0     1     2     3     4     5     6     7
+   88:      0     1     2     3     4     5     6     7
+   96:      0     1     2     3     4     5     6     7
+  104:      0     1     2     3     4     5     6     7
+  112:      0     1     2     3     4     5     6     7
+  120:      0     1     2     3     4     5     6     7
+RSS hash key:
+Operation not supported
+RSS hash function:
+    toeplitz: on
+    xor: off
+    crc32: off
