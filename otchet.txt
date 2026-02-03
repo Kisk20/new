@@ -1,0 +1,20 @@
+Лимиты:
+ ulimit -Sn
+1024
+ ulimit -Hn
+1048576
+ cat /proc/sys/fs/file-max
+9223372036854775807
+ cat /proc/sys/fs/nr_open
+1048576
+MTU:
+ip link show | grep mtu
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+2: ens160: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP mode DEFAULT group default qlen 1000
+3: docker0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN mode DEFAULT group default
+136: br-6ad548050a20: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN mode DEFAULT group default
+DISC:
+lsblk -o NAME,ROTA,TYPE,SIZE,MODEL /dev/nvme0n1
+lsblk: /dev/nvme0n1: not a block device
+
+
