@@ -1,0 +1,71 @@
+{{- if $.Values.offsets.grpcEndPoint.enabled }}
+{{- $name := (printf "%s-tqe-api-pubsub" .Release.Name) }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $name }}
+  labels:
+    app: {{ $name }}
+spec:
+  replicas: {{ $.Values.offsets.grpcEndPoint.replicas }}
+  selector:
+    matchLabels:
+      app: {{ $name }}
+      {{- with $.Values.offsets.matchLabels  }}
+        {{- toYaml . | nindent 6 }}
+      {{- end }}
+  template:
+    metadata:
+      labels:
+        app: {{ $name }}
+        service: {{ $name }}
+        app.kubernetes.io/component: {{ $.Release.Name }}-tqe-offset
+        {{- with $.Values.offsets.templateLabels  }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- if $.Values.tqe.tarantool.securityContext }}
+      securityContext: {{- $.Values.tqe.tarantool.securityContext | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if .Values.affinity }}
+      affinity:
+        {{- toYaml .Values.affinity | nindent 8 }}
+      {{- end }}
+      {{- if .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations: 
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{ include "common.images.renderPullSecrets" (dict "images" (list .Values.tqe.image) "context" $) | nindent 6 }}
+      initContainers:
+        - name: init-grpc
+          image: {{ .Values.tqe.image.repository }}:{{ .Values.tqe.image.tag }}
+          imagePullPolicy: {{ .Values.tqe.image.pullPolicy }}
+          command: ["sh", "-ec", "until nc -z {{ .Release.Name }}-router.{{ .Release.Namespace }}.svc.cluster.local 3301; do echo waiting for router; sleep 10; done;" ]
+
+      containers:
+      - name: main
+        image: {{ .Values.tqe.image.repository }}:{{ .Values.tqe.image.tag }}
+        imagePullPolicy: {{ .Values.tqe.image.pullPolicy }}
+        command: [ "./message-queue-ee", "-config=/message-queue-ee/config/grpc.config.yml" ]
+        volumeMounts:
+        - name: config
+          mountPath: /message-queue-ee/config/grpc.config.yml
+          subPath: config.yml
+        ports:
+        - name: monitoring
+          containerPort: 18184
+          protocol: TCP
+        - name: grpc
+          containerPort: 18182
+          protocol: TCP
+      volumes:
+      - name: config
+        configMap:
+          name: grpc-pubsub-config-{{ $.Release.Name }}
+...
+{{- end }}

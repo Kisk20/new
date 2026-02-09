@@ -1,0 +1,11 @@
+apiVersion: v2
+appVersion: "3.3"
+dependencies:
+- condition: etcd.enabled
+  name: etcd
+  repository: ""
+description: Tarantool is a high performance in-memory database and Lua application
+  server
+name: tarantool
+type: application
+version: 0.4.2

@@ -1,0 +1,170 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/component: {{ .Release.Name }}-tcm
+    {{- include "tarantool-chart.labels" . | nindent 4 }}
+  name: {{ .Release.Name }}-tcm
+  namespace: {{ .Release.Namespace | quote }}
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: {{ .Release.Name }}-tcm
+      {{- include "tarantool-chart.matchLabels" $.Values.tcm.matchLabels | nindent 6 }}
+  strategy:
+    type: Recreate
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: {{ .Release.Name }}-tcm
+        {{- include "tarantool-chart.labels" . | nindent 8 }}
+        {{- include "tarantool-chart.templateLabels" $.Values.tcm.templateLabels | nindent 8 }}
+    spec:
+      {{- if .Values.securityContext }}
+      securityContext: {{- .Values.securityContext | toYaml | nindent 8 }}
+      {{- end }}    
+      {{- if .Values.affinity }}
+      affinity:
+        {{- toYaml .Values.affinity | nindent 8 }}
+      {{- end }}
+      {{- if .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- include "tarantool-chart.imagePullSecrets" . | nindent 6 }}
+      containers:
+        - name: tcm
+          image: {{ include "tarantool-chart.image" . }}
+          imagePullPolicy: {{ include "tarantool-chart.pullPolicy" . }}
+          command: ["tcm"]
+          args: ["-c", "/app/tarantooldb/tcm.yml"]
+          ports:
+            - containerPort: {{ .Values.tcm.http.port | int }}
+              protocol: TCP
+          {{- with .Values.tcm.additionalPorts }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: cluster-manager-config
+              mountPath: "/app/tarantooldb/tcm.yml"
+              subPath: "tcm.yml"
+          {{ include "common.resources" (dict "resources" $.Values.tcm.resources) | nindent 10 }}
+      initContainers:
+        - name: init-config
+          image: {{ include "etcd-chart.image" . }}
+          command: ["sh", "/app/tarantool/wait_for_etcd.sh"]
+          {{ include "common.resources" (dict "resources" $.Values.tcm.resources) | nindent 10 }}
+          volumeMounts:
+            - name: cluster-manager-init-scripts
+              mountPath: "/app/tarantool/wait_for_etcd.sh"
+              subPath: "wait_for_etcd.sh"
+          env:
+            - name: ETCD_URI
+              value: '{{ .Release.Name }}-etcd-0.{{ .Release.Name }}-etcd-headless.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.etcd.service.ports.client }}'
+            - name: TT_CONFIG_ETCD_PREFIX
+              value: {{ .Values.ttConfigEtcdPrefix }}
+      restartPolicy: Always
+      volumes:
+        - name: cluster-manager-config
+          configMap:
+            name: {{ .Release.Name }}-configmap
+            items:
+            - key: "tcm.yml"
+              path: "tcm.yml"
+        - name: cluster-manager-init-scripts
+          configMap:
+            name: {{ .Release.Name }}-init-scripts
+            items:
+            - key: "wait_for_etcd.sh"
+              path: "wait_for_etcd.sh"
+---
+{{- if eq .Values.replication.failover "supervised" }}
+{{ $releaseName := .Release.Name }}
+{{ $etcdServicePort := (.Values.etcd.service.ports.client | int) }}
+{{ $etcdPodAddressString := (printf "%s-etcd" $releaseName )}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/component: {{ $releaseName }}-failover-coordinator
+    {{- include "tarantool-chart.labels" . | nindent 4 }}
+  name: {{ $releaseName }}-failover-coordinator
+  namespace: {{ .Release.Namespace | quote }}
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: {{ $releaseName }}-failover-coordinator
+  strategy:
+    type: Recreate
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: {{ $releaseName }}-failover-coordinator
+        {{- include "tarantool-chart.labels" . | nindent 8 }}
+    spec:
+      {{- if .Values.securityContext }}
+      securityContext: {{- .Values.securityContext | toYaml | nindent 8 }}
+      {{- end }}    
+      {{- if .Values.affinity }}
+      affinity:
+        {{- toYaml .Values.affinity | nindent 8 }}
+      {{- end }}
+      {{- if .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- include "tarantool-chart.imagePullSecrets" . | nindent 6 }}
+      containers:
+        - env:
+            - name: TT_CONFIG_ETCD_ENDPOINTS
+              value: {{ $etcdReplicaCount := (.Values.etcd.replicaCount | int) }}
+              {{- range $etcdReplicaNumber := until $etcdReplicaCount }}http://{{ $etcdPodAddressString }}-{{ $etcdReplicaNumber }}.{{ $etcdPodAddressString }}-headless:{{ $etcdServicePort }}
+              {{- if and (ne $etcdReplicaCount 1) (ne (sub $etcdReplicaCount $etcdReplicaNumber) 1) }},{{ end }}{{ end }}
+            - name: TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT
+              value: {{ .Values.ttConfigEtcdHttpRequestTimeout | quote }}
+            - name: TT_CONFIG_ETCD_PREFIX
+              value: {{ .Values.ttConfigEtcdPrefix }}
+            - name: TT_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: admpass
+                  name: {{ $releaseName }}-admin-password
+          name: failover-coordinator
+          image: {{ include "tarantool-chart.image" . }}
+          imagePullPolicy: {{ include "tarantool-chart.pullPolicy" . }}
+          command: ["tarantool"]
+          args: ["--failover"]
+          {{ include "common.resources" (dict "resources" $.Values.tcm.resources) | nindent 10 }}
+      initContainers:
+        - name: init-config
+          image: {{ include "etcd-chart.image" . }}
+          command: ["sh", "/app/tarantool/wait_for_etcd.sh"]
+          {{ include "common.resources" (dict "resources" $.Values.tcm.resources) | nindent 10 }}
+          volumeMounts:
+            - name: cluster-manager-init-scripts
+              mountPath: "/app/tarantool/wait_for_etcd.sh"
+              subPath: "wait_for_etcd.sh"
+          env:
+            - name: ETCD_URI
+              value: '{{ .Release.Name }}-etcd-0.{{ .Release.Name }}-etcd-headless.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.etcd.service.ports.client }}'
+            - name: TT_CONFIG_ETCD_PREFIX
+              value: {{ .Values.ttConfigEtcdPrefix }}
+      restartPolicy: Always
+      volumes:
+        - name: cluster-manager-init-scripts
+          configMap:
+            name: {{ .Release.Name }}-init-scripts
+            items:
+            - key: "wait_for_etcd.sh"
+              path: "wait_for_etcd.sh"
+{{- end }}

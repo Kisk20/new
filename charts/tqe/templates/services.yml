@@ -1,0 +1,27 @@
+{{ range until ( .Values.tarantool.storage.replicasetCount | int) }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $.Release.Name }}-tqe-api-consumer-{{ . }}
+spec:
+  clusterIP: None
+  selector:
+    app: {{ $.Release.Name }}-tqe-api-consumer-{{ . }}
+  ports:
+  {{- template "grpc-service-ports" }}
+...
+{{ end }}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-tqe-api-publisher
+spec:
+  clusterIP: None
+  selector:
+    service: {{ .Release.Name }}-tqe-api-publisher
+  ports:
+  {{- template "grpc-service-ports" }}
+...

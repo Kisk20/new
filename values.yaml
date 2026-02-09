@@ -1,0 +1,665 @@
+# -- image parameters for tarantool chart for Pods: Router, Storage, Config-Job, Bootstrap-Job, Postupgrade-Job.
+# @section -- Global
+global:
+  imageRegistry: ""
+  imagePullPolicy: IfNotPresent
+  imagePullSecrets: []
+
+# -- (object) Parameters to assign CDC pods to nodes. You can leave it empty
+affinity:
+# -- (object) Parameters to assign CDC pods to nodes. You can leave it empty
+nodeSelector:
+# -- Parameters to assign CDC pods to nodes. You can leave it empty
+tolerations: []
+
+# -- map with common worker settings, both for source and sink
+# @section -- CDC Workers - common config for sink and source
+# @default -- ...
+worker:
+
+  # worker.livenessProbe -- describes parameters of liveness probes. See k8s documentation about probes
+  # @section -- CDC Workers - common config for sink and source
+  livenessProbe:
+    timeoutSeconds: 15
+    failureThreshold: 15
+    successThreshold: 1
+  # worker.startupProbe -- describes parameters of startup probes. See k8s documentation about probes
+  # @section -- CDC Workers - common config for sink and source
+  startupProbe:
+    timeoutSeconds: 15
+    failureThreshold: 15
+    successThreshold: 1
+  # worker.pullSecrets -- secrets for Pods: CDC Source and Sync. Should be created before deploy by this helm chart. i.e.: "{name: secret}"
+  # @section -- CDC Workers - common config for sink and source
+  pullSecrets: []
+
+# -- source is a section describing configuration for source workers
+# @section -- CDC Source
+# @default -- ...
+source:
+
+  # source.enabled -- Boolean flag. If true then source worker will be deployed.
+  # @section -- CDC Source
+  enabled: true
+
+  # source.image -- contains parameters where and how to fetch images for worker deployments
+  # @section -- CDC Source
+  image:
+    repository: source-worker-all
+    pullPolicy: Always
+    tag: "0.8.0"
+
+  # source.matchLables -- a selector that determines which Pods the controller will consider "its own". Fills "spec.selector.matchLabels"
+  # @section -- CDC Source
+  matchLabels: {}
+  # source.templateLabels -- the labels that will be assigned to each Pod created by this manifest. Fills "spec.template.metadata.labels"
+  # @section -- CDC Source
+  templateLabels: {}
+
+  # source.commonConfig -- map with common configuration keys which are common for all source worker instances
+  # @section -- CDC Source
+  # @default -- Can find example in values.yaml or Tarantool CDC documentation.
+  commonConfig: {}
+  # Example of common configuration:
+  #
+  # commonConfig:
+  #   - worker.connector.name: "PostgresConnector"
+  #   - worker.connector.connector.class: "io.debezium.connector.postgresql.PostgresConnector"
+  #   - worker.connector.database.hostname: "postgresql-source-host"
+  #   - worker.connector.database.port: 5432
+  #   - worker.connector.plugin.name: "pgoutput"
+  #   - worker.connector.table.include.list: "public.documents"
+  #   - worker.connector.topic.prefix: "cdc"
+  #   - worker.connector.key.converter: "org.apache.kafka.connect.json.JsonConverter"
+  #   - worker.connector.value.converter: "org.apache.kafka.connect.json.JsonConverter"
+  #   - worker.topic.name: "cdc"
+  #   - worker.plugin.path: "/libs/connect/postgres"
+
+  # source.subConfigs -- array with objects containing configuration parts for each source worker instance
+  # @section -- CDC Source
+  # @default -- Can find example in values.yaml or Tarantool CDC documentation.
+  subConfigs: []
+  # Example of subConfigs:
+  #
+  # subConfigs:
+  # - worker.connector.database.dbname: "source_db_1"
+  #   worker.connector.database.user: "user"
+  #   worker.connector.database.password: "password"
+  # - worker.connector.database.dbname: "source_db_2"
+  #   worker.connector.database.user: "user"
+  #   worker.connector.database.password: "password"
+
+  # source.resources -- section describing resource requirements for pods with source worker. See k8s documentation about resources. If no value is set for requests , the values from limits will be used
+  # @section -- CDC Source
+  resources:
+    limits:
+      cpu: 1.5
+      memory: 4Gi
+    requests:
+      cpu: 1
+      memory: 2Gi
+  # -- For example:
+  # -- resources:
+  # --   requests:
+  # --     memory: 1024Mi
+  # --     cpu: 1
+  # --   limits:
+  # --     memory: 2048Mi
+  # --     cpu: 2
+
+  # source.commonConfigMaps -- section allows to mount additional ConfigMaps as a volume to every source workers pods. Note that ConfigMap must be existed! Example: [{"name":"additional-config","file":"config.yaml","path":"/etc/config.yaml"}]
+  # @section -- CDC Source
+  commonConfigMaps:
+
+  # source.commonSecrets -- section allows to mount additional Secrets as a volume to every source workers pods. Note that Secret with type TLS must be existed! Example: [{"name":"tls-cert-1","path":"/etc/ssl/certs/secret1"}]
+  # @section -- CDC Source
+  commonSecrets:
+
+# -- sink is a section describing configuration for sink workers
+# @default -- ...
+# @section -- CDC Sink
+sink:
+
+  # sink.enabled -- boolean flag. If true then source worker will be deployed.
+  # @section -- CDC Sink
+  enabled: true
+
+  # sink.image -- contains parameters where and how to fetch images for worker deployments
+  # @section -- CDC Sink
+  image:
+    repository: sink-worker-all
+    pullPolicy: Always
+    tag: "0.8.0"
+
+  # sink.matchLabels -- A selector that determines which Pods the controller will consider "its own". Fills "spec.selector.matchLabels"
+  # @section -- CDC Sink
+  matchLabels: {}
+  # sink.templateLabels -- The labels that will be assigned to each Pod created by this manifest. Fills "spec.template.metadata.labels"
+  # @section -- CDC Sink
+  templateLabels: {}
+
+  # sink.commonConfig -- Map with common configuration keys which are common for all sink worker instances
+  # @section -- CDC Sink
+  # @default -- Can find example in values.yaml or Tarantool CDC documentation.
+  commonConfig: {}
+  # -- Example of common configuration:
+  #
+  # -- worker.connector.name: "JdbcSinkConnector"
+  # -- worker.connector.connector.class: "io.debezium.connector.jdbc.JdbcSinkConnector"
+  # -- worker.connector.auto.create: true
+  # -- worker.connector.connection.url: "jdbc:postgresql://postgresql-sink-jost:5432/sink_db"
+  # -- worker.connector.connection.username: "user"
+  # -- worker.connector.connection.password: "password"
+  # -- worker.connector.database.time.zone: "UTC"
+  # -- worker.connector.delete.enabled: false
+  # -- worker.connector.insert.mode: "upsert"
+  # -- worker.connector.primary.key.fields: "id,uuid"
+  # -- worker.connector.primary.key.mode: "record_value"
+  # -- worker.connector.quote.identifiers: true
+  # -- worker.connector.schema.evolution: "basic"
+  # -- worker.connector.tasks.max: 1
+  # -- worker.connector.key.converter: "org.apache.kafka.connect.json.JsonConverter"
+  # -- worker.connector.value.converter: "org.apache.kafka.connect.json.JsonConverter"
+  # -- worker.plugin.path: "/libs/connect/jdbc"
+  # -- worker.sink.topic-name-key: "space_name,table"
+
+  # sink.subConfigs -- array with objects containing configuration parts for each sink worker instance
+  # @section -- CDC Sink
+  # @default -- Can find example in values.yaml or Tarantool CDC documentation.
+  subConfigs: []
+  # -- Example of subConfigs (for 2 instances):
+  #
+  # -- subConfigs:
+  # -- - worker.topic.name "cdc-1"
+  # -- - worker.topic.name "cdc-2"
+
+  # sink.resources -- section describing resource requirements for pods with source worker. See k8s documentation about resources. If no value is set for requests , the values from limits will be used
+  # @section -- CDC Sink
+  resources:
+    limits:
+      cpu: 1.5
+      memory: 4Gi
+    requests:
+      cpu: 1
+      memory: 2Gi
+  # -- For example:
+  #
+  # -- resources:
+  # --   requests:
+  # --     memory: 1024Mi
+  # --     cpu: 1
+  # --   limits:
+  # --     memory: 2048Mi
+  # --     cpu: 2
+
+  # sink.commonConfigMaps -- section allows to mount additional ConfigMaps as a volume to every source workers pods. Note that ConfigMap must be existed! Example: [{"name":"additional-config","file":"config.yaml","path":"/etc/config.yaml"}]
+  # @section -- CDC Sink
+  commonConfigMaps:
+
+  # sink.commonSecrets -- section allows to mount additional Secrets as a volume to every source workers pods. Note that Secret with type TLS must be existed! Example: [{"name":"tls-cert-1","path":"/etc/ssl/certs/secret1"}]
+  # @section -- CDC Sink
+  commonSecrets:
+
+
+# -- section with parameters where and how to store worker offsets. Offsets are stored in special queue of TQE. This queue should have deduplication_mode = keep_latest.
+# @default -- ...
+# @section -- TQE offset
+offsets:
+
+  # offsets.queue -- name of offsets queue.
+  # @section -- TQE offset
+  queue: offsets
+
+  # offsets.grpcEndPoint -- section describing parameters for separate grpc-endpoint deployment. Usually in TQE all grpc endpoints are separated by their role - some part of grpc service deployment is for publishing, other for consuming. But for offsets we need grpc endpoint with both roles - consuming and publishing.
+  # @section -- TQE offset
+  grpcEndPoint:
+    # offsets.grpcEndPoint.enabled -- boolean flag. When is true then grpc pubsub service is deployed.
+    # @section -- TQE offset
+    enabled: true
+    # offsets.grpcEndPoint.replicas -- number of instances for grpc pubsub deployment.
+    # @section -- TQE offset
+    replicas: 1
+
+
+  # offsets.matchLabels -- A selector that determines which Pods the controller will consider "its own". Fills "spec.selector.matchLabels"
+  # @section -- TQE offset
+  matchLabels: {}
+  # offsets.templateLabels -- The labels that will be assigned to each Pod created by this manifest. Fills "spec.template.metadata.labels"
+  # @section -- TQE offset
+  templateLabels: {}
+
+# -- Tarantool TQE subchart block. It's the only dependency, so `tarantool` block must be under `tqe` level
+# @default -- ...
+# @section -- TQE
+tqe:
+
+  # tqe.enabled -- enable TQE installation
+  # @section -- TQE
+  enabled: true
+
+  # tqe.port -- port for grpc services
+  # @section -- TQE
+  port: 18182
+
+  # tqe.image -- image user for deploying grpc services. Uses for Pods: TQE Consumer, Publisher, API-PubSub
+  # @section -- TQE
+  image:
+    repository: message-queue-ee
+    pullPolicy: Always
+    tag: "2.5.3"
+    # tqe.image.pullSecrets -- ❗ ImagePullSecrets for Pods: TQE Consumer, Publisher, API-PubSub ❗ Should be created before deploy by this helm chart. i.e.: "{name: secret}"
+    # @section -- TQE
+    pullSecrets: []
+
+  # tqe.image.affinity -- (object) Parameters to assign pods to nodes. You can leave it empty
+  # @section -- TQE
+  affinity:
+  # tqe.image.nodeSelector -- (object) Parameters to assign pods to nodes. You can leave it empty
+  # @section -- TQE
+  nodeSelector:
+  # tqe.image.tolerations -- (list) Parameters to assign pods to nodes. You can leave it empty
+  # @section -- TQE
+  tolerations:
+
+  # tqe.credentials -- credentials for connecting to TQE and subscribing to queues. NOTE: all secrets should be created before deploy by this helm chart.
+  # @section -- TQE
+  credentials:
+    # tqe.credentials.user -- username to connect to TQE
+    # @section -- TQE
+    user: client
+    # tqe.credentials.password -- password string to connect to TQE
+    # @section -- TQE
+    password: secret
+
+  # -- (object) Parameters to assign additional options to GRPC configs
+  # @section -- TQE
+  grpcOptions:
+    reflection_enabled: true
+
+  # tqe.consumer -- contains settings for grpc-consumer endpoints
+  # @section -- TQE
+  consumer:
+
+    # tqe.consumer.replicas -- number of instances of grpc-consumer services
+    # @section -- TQE
+    replicas: 1
+
+    # tqe.consumer.resources -- resources for grpc-consumer services. If no value is set for requests , the values from limits will be used
+    # @section -- TQE
+    resources:
+      limits:
+        memory: 256Mi
+        cpu: 500m
+    # -- For example:
+    # -- resources:
+    # --   requests:
+    # --     memory: 1024Mi
+    # --     cpu: 1
+    # --   limits:
+    # --     memory: 2048Mi
+    # --     cpu: 2
+
+    # tqe.consumer.consumerCapacity -- (int) TQE Shards (storages) count to connect to the one TQE Consumer. Fill this parameter if you absolutely sure that your trafic lets you do this.
+    # @section -- TQE Consumer
+    consumerCapacity: 2
+
+  # tqe.publisher -- contains settings for grpc-publisher endpoints
+  # @section -- TQE
+  publisher:
+
+    # tqe.publisher.replicas -- number of instances of grpc-publisher services
+    # @section -- TQE
+    replicas: 1
+
+    # tqe.publisher.resources -- resources for grpc-publisher services
+    # @section -- TQE
+    resources:
+      limits:
+        memory: 256Mi
+        cpu: 500m
+    # -- For example:
+    # -- resources:
+    # --   requests:
+    # --     memory: 1024Mi
+    # --     cpu: 1
+    # --   limits:
+    # --     memory: 2048Mi
+    # --     cpu: 2
+
+  # tqe.tarantool -- section for values of Tarantool subChart. Describes all the parameters to start Tarantool routers an Tarantool storages, including TCM. Also this chart incudes etcd configuration
+  # @default -- ...
+  # @section -- Tarantool core
+  tarantool:
+
+    # tqe.tarantool.securityContext -- Allows to provide additional security parameters such as run as non root user, user's uid etc.
+    # @section -- Common
+    securityContext: {}
+    # For example:
+    #  runAsNonRoot: true
+    #  runAsUser: 1000
+
+    # tqe.tarantool.image -- section with image params for Pods: Router, Storage, Config-Job, Bootstrap-Job, Postupgrade-Job. Be sure you set `command` section to the command starting tarantool, if docker image command is different to it (like in message-queue-enterprise images).
+    # @section -- Tarantool core
+    image:
+      repository: message-queue-ee
+      pullPolicy: Always
+      tag: "2.5.3"
+      command: ["tarantool"]
+      # tqe.tarantool.image.pullSecrets -- ❗ imagePullSecrets for Pods: Router, Storage, Config-Job, Bootstrap-Job, Postupgrade-Job ❗ Should be created before deploy by this helm chart. i.e.: "{name: secret}". User must fill in the parameter if private Registry is used
+      # @section -- Tarantool core
+      pullSecrets: []
+
+    # tqe.tarantool.metrics_export -- settings for tarantool's 'metrics-export' role
+    # @section -- Tarantool core
+    metrics_export:
+
+      # tqe.tarantool.metrics_export.enabled -- enable tarantool's 'metrics-export' role
+      # @section -- Tarantool core
+      enabled: true
+
+    # tqe.tarantool.replication -- tarantool replication settings
+    # @section -- Tarantool core
+    replication:
+
+      # tqe.tarantool.replication.failover -- tarantool replication failover mode
+      # @section -- Tarantool core
+      failover: election
+
+    # Common parameters for routers/storages for communication with etcd
+
+    # tqe.tarantool.ttConfigEtcdPrefix -- config prefix where Tarantool config is stored in etcd
+    # @section -- Tarantool core
+    ttConfigEtcdPrefix: "/cdc"
+
+    # tqe.tarantool.ttConfigEtcdHttpRequestTimeout -- timeout in seconds for http requests to ETCD from tarantool nodes
+    # @section -- Tarantool core
+    ttConfigEtcdHttpRequestTimeout: 3
+
+    # tqe.tarantool.autoBootstrap -- section for automatic bootstrap. Autobootstrap is performed by kubernetes Job, so, images and others related params needed.
+    # @section -- Tarantool core
+    autoBootstrap:
+      # tqe.tarantool.autoBootstrap.enabled -- enables or disables autobootstrap. Needed for TQE.
+      # @section -- Tarantool core
+      enabled: true
+
+      # tqe.tarantool.autoBootstrap.image -- image params for bootstrap Job
+      # @section -- Tarantool core
+      image:
+        repository: tt
+        tag: "2.10.0"
+        pullPolicy: IfNotPresent
+
+    # tqe.tarantool.router -- parameters for routers in Tarantool cluster
+    # @default -- ...
+    # @section -- Tarantool core
+    router:
+
+      # tqe.tarantool.router.replicasetCount -- count of Tarantool shards (replicasets) for routers
+      # @section -- Tarantool core
+      replicasetCount: 1
+      # tqe.tarantool.router.replicaCount -- count of Tarantool replicas for each shard (replicaset)
+      # @section -- Tarantool core
+      replicaCount: 1
+
+      # tqe.tarantool.router.servicePort -- a port for k8s service to listen to queries to forward them to router pods. Usually 3301
+      # @section -- Tarantool core
+      servicePort: 3301
+      # tqe.tarantool.router.appPort -- a port which router pods are listen to. Usually 3301
+      # @section -- Tarantool core
+      appPort: 3301
+
+      # tqe.tarantool.router.resources -- resources for router pods. If no value is set for requests , the values from limits will be used
+      # @section -- Tarantool core
+      resources:
+        limits:
+          memory: 512Mi
+          cpu: 1
+      # -- For example:
+      # -- resources:
+      # --   requests:
+      # --     memory: 1024Mi
+      # --     cpu: 1
+      # --   limits:
+      # --     memory: 2048Mi
+      # --     cpu: 2
+
+      # tqe.tarantool.router.roles -- ❗ User can override parameters and specify their role value, currently defined in /charts/tqe/values.yaml  ❗ See the [tarantool docs](https://www.tarantool.io/ru/doc/latest/platform/app/app_roles/#api-reference)
+      # @section -- Tarantool core
+      roles:
+        - app.roles.api
+
+      # tqe.tarantool.router.additionalPorts -- A set of ports to open for each pod. Example: `[{"containerPort":"8000","name":"Port 8000","protocol":"TCP"}]`. Allows you to specify additional ports that will be opened in the Tarantool container. This is useful if your Tarantool application uses additional TCP/HTTP servers.
+      # @section -- Tarantool core
+      additionalPorts:
+        - containerPort: 8081
+          name: "http"
+          protocol: TCP
+
+      # tqe.tarantool.router.probes -- probes configuration.
+      # @default -- ...
+      # @section -- Tarantool core
+      probes:
+        # tqe.tarantool.router.probes.liveness -- liveness probes configuration. For now we support only liveness probes configurations. We reccomend change this section if your container. ❗ See k8s [documentation](https://kubernetes.io/docs/concepts/configuration/liveness-readiness-startup-probes/#liveness-probe) about probes ❗
+      # @section -- Tarantool core
+        liveness:
+          initialDelaySeconds: 10
+          periodSeconds: 2
+          timeoutSeconds: 1
+          successThreshold: 1
+          failureThreshold: 3
+
+    # tqe.tarantool.storage -- parameters for routers in Tarantool cluster
+    # @default -- ...
+    # @section -- Tarantool core
+    storage:
+
+      # tqe.tarantool.storage.replicasetCount -- count of Tarantool shards (replicasets) for storages
+      # @section -- Tarantool core
+      replicasetCount: 1
+      # tqe.tarantool.storage.replicaCount -- count of Tarantool replicas for each shard (replicaset)
+      # @section -- Tarantool core
+      replicaCount: 2
+
+      # tqe.tarantool.storage.servicePort -- a port for k8s service to listen to queries to forward them to storage pods. Usually 3301
+      # @section -- Tarantool core
+      servicePort: 3301
+      # tqe.tarantool.storage.appPort -- a port which storage pods are listen to. Usually 3301
+      # @section -- Tarantool core
+      appPort: 3301
+
+      # tqe.tarantool.storage.resources -- resources for storage pods. If no value is set for requests , the values from limits will be used
+      # @section -- Tarantool core
+      resources:
+        limits:
+          memory: 1Gi
+          cpu: 1.5
+      # -- For example:
+      # -- resources:
+      # --   requests:
+      # --     memory: 1024Mi
+      # --     cpu: 1
+      # --   limits:
+      # --     memory: 2048Mi
+      # --     cpu: 2
+
+      # tqe.tarantool.storage.replication -- replication settings for storage instances, available parameters are described in the tarantool.io documentation. User don't need override parameters. ❗ See [tarantool docs](https://www.tarantool.io/ru/doc/latest/reference/configuration/configuration_reference/#confval-replication.bootstrap_strategy) ❗
+      # @section -- Tarantool core
+      replication:
+        bootstrap_strategy: auto
+
+      # tqe.tarantool.storage.roles -- roles definition. ❗ See [tarantool docs](https://www.tarantool.io/ru/doc/latest/platform/app/app_roles/#api-reference)
+      # @section -- Tarantool core
+      roles:
+        - app.roles.queue
+
+      # tqe.tarantool.storage.additionalPorts -- a set of ports to open for each pod, i.e. [{"containerPort":"8000","name":"Port 8000","protocol":"TCP"}]. Allows you to specify additional ports that will be opened in the Tarantool container. This is useful if your Tarantool application uses additional TCP/HTTP servers.
+      # @section -- Tarantool core
+      additionalPorts:
+        - containerPort: 8081
+          name: "http"
+          protocol: TCP
+
+      # tqe.tarantool.storage.probes -- probes configuration.
+      # @default -- ...
+      # @section -- Tarantool core
+      probes:
+        # tqe.tarantool.storage.probes.liveness -- liveness probes configuration. For now we support only liveness probes configuration. See k8s documentation about probes ❗ See [k8s documentation](https://kubernetes.io/docs/concepts/configuration/liveness-readiness-startup-probes/#liveness-probe) ❗
+        # @section -- Tarantool core
+        liveness:
+          initialDelaySeconds: 10
+          periodSeconds: 2
+          timeoutSeconds: 1
+          successThreshold: 1
+          failureThreshold: 3
+
+      # tqe.tarantool.storage.persistence -- persistence settings for tarantool storages pods. Defines how persistente volumes will be assigned to the internal storages
+      # @section -- Tarantool core
+      persistence:
+        # tqe.tarantool.storage.storageClassName -- storage class name for PVC
+        # @section -- Tarantool core
+        storageClassName: ""
+
+        # tqe.tarantool.storage.persistence.volumeSize -- size of disk for tarantool node
+        # @section -- Tarantool core
+        volumeSize: 8Gi
+
+        # tqe.tarantool.storage.persistence.retentionPolicy -- retentionPolicy settings for tarantool storages pods
+        # @section -- Tarantool core
+        retentionPolicy:
+          enabled: true
+          whenScaled: Retain
+          whenDeleted: Retain
+
+        # tqe.tarantool.storage.persistence.storageClassName -- storage class name for PVC
+        # @section -- Tarantool core
+        storageClassName: ""
+
+        # tqe.tarantool.storage.persistence.volumeSize -- size of disk for tarantool node
+        # @section -- Tarantool core
+        volumeSize: 8Gi
+
+    # tqe.tarantool.tcm -- Tarantool Cluster Manager's config. ❗ User can override parameters for TCM ❗
+    # @default -- ...
+    # @section -- TCM
+    tcm:
+      # tqe.tarantool.tcm.http -- section to describe web settings like TCM host and TCM port
+      # @section -- TCM
+      http:
+        # @section -- TCM
+        host: 0.0.0.0
+        # tqe.tarantool.tcm.port -- a port which TCM pod is listen to
+        # @section -- TCM
+        port: 8081
+      # tqe.tarantool.tcm.security -- login: password for bootstrap
+      # @section -- TCM
+      security:
+        bootstrap-password: secret
+      # tqe.tarantool.tcm.cluster -- settings for initial cluster
+      # @section -- TCM
+      cluster:
+        tt-command: tt
+      # tqe.tarantool.tcm.servicePort -- a port for k8s service to listen to queries to forward them to TCM pods
+      # @section -- TCM
+      servicePort: 8081
+      # tqe.tarantool.tcm.additionalPorts -- a set of ports to open for each pod, i.e. [{"containerPort":"8000","name":"Port 8000","protocol":"TCP"}]. Allows you to specify additional ports that will be opened in the Tarantool container. This is useful if your Tarantool application uses additional TCP/HTTP servers.
+      # @section -- TCM
+      additionalPorts: []
+
+      # tqe.tarantool.tcm.resources -- resources for tcm pods. If no value is set for requests , the values from limits will be used
+      # @section -- TCM
+      resources:
+        limits:
+          memory: 256Mi
+          cpu: 200m
+      # -- For example:
+      # -- resources:
+      # --   requests:
+      # --     memory: 1024Mi
+      # --     cpu: 1
+      # --   limits:
+      # --     memory: 2048Mi
+      # --     cpu: 2
+
+      # tqe.tarantool.tcm.matchLabels -- a selector that determines which Pods the controller will consider "its own". Fills "spec.selector.matchLabels"
+      # @section -- TCM
+      matchLabels: {}
+      # tqe.tarantool.tcm.templateLabels -- the labels that will be assigned to each Pod created by this manifest. Fills "spec.template.metadata.labels"
+      # @section -- TCM
+      templateLabels: {}
+
+    # tqe.tarantool.tcm.metrics_export -- settings for tarantool's 'metrics-export' role
+    # @section -- TCM
+    metrics_export:
+
+      # tqe.tarantool.tcm.metrics_export.enabled -- enable tarantool's 'metrics-export' role
+      # @section -- TCM
+      enabled: true
+
+    # tqe.tarantool.tcm.replication -- tarantool replication settings
+    # @section -- TCM
+    replication:
+
+      # tqe.tarantool.tcm.replication.failover -- tarantool replication failover mode
+      # @section -- TCM
+      failover: election
+
+    # tqe.tarantool.tcm.config -- section with Tarantool cluster config
+    # @default -- ...
+    # @section -- TCM
+    config:
+      # tqe.tarantool.tcm.config.parameters -- section contains the same keys and values as Tarantool Config YAML file
+      # @section -- TCM
+      parameters:
+        roles_cfg:
+          app.roles.queue:
+            queues:
+            - name: cdc
+            - name: schema
+              deduplication_mode: keep_latest
+            - name: offsets
+              deduplication_mode: keep_latest
+
+    # -- etcd options. See documentation for etcd helm chart
+    # @default -- ...
+    # @section -- etcd
+    etcd:
+
+      # tqe.tarantool.etcd.enabled -- enable etcd installation
+      # @section -- etcd
+      enabled: true
+
+      # tqe.tarantool.etcd.replicaCount -- count of replicas, must be odd
+      # @section -- etcd
+      replicaCount: 3
+
+      # tqe.tarantool.etcd.persistence -- persistence settings for tarantool storages pods
+      # @section -- etcd
+      persistence:
+        # tqe.tarantool.etcd.persistence.storageClass -- storage class name for PVC
+        # @section -- etcd
+        storageClass: ""
+        # tqe.tarantool.etcd.persistence.size -- PVC size
+        # @section -- etcd
+        size: 512Mi
+        enabled: true
+        # tqe.tarantool.etcd.persistence.accessModes -- defines how pods can mount the volume. We strongly recommend use ReadWriteOnce
+        # @section -- etcd
+        accessModes:
+        - ReadWriteOnce
+
+      # tqe.tarantool.etcd.resources -- resources for tcm pods. If no value is set for requests , the values from limits will be used
+      # @section -- etcd
+      resources:
+        requests:
+          cpu: 50m
+          memory: 128Mi
+        limits:
+          cpu: 100m
+          memory: 256Mi
+
+      # tqe.tarantool.etcd.persistentVolumeClaimRetentionPolicy -- Retain to keep PVC after chart deleted, Delete to delete PVC after chart deleted
+      # @section -- etcd
+      persistentVolumeClaimRetentionPolicy:
+        enabled: true
+        whenScaled: Retain
+        whenDeleted: Retain

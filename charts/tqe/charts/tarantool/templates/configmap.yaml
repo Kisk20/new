@@ -1,0 +1,115 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-configmap
+  labels:
+    {{- include "tarantool-chart.labels" . | nindent 4 }}
+data:
+  config.yml: |
+    {{- include "tarantool-chart.renderFullConfig" . | nindent 4 }}
+
+    {{- include "tarantool-chart.renderRolesCfgSection" . | nindent 4 }}
+
+    groups:
+      {{- $releaseName := .Release.Name }}
+      {{- /* корень конфигурации: либо config.parameters, либо старый плоский config */ -}}
+      {{- $cfgRoot := ternary .Values.config.parameters .Values.config (hasKey .Values.config "parameters") -}}
+
+      {{- if .Values.router.enabled }}
+      {{- $routerGroupName := .Values.router.routerGroupName }}
+      {{- $routerRoles := .Values.router.roles }}
+      {{- $metricsExport := .Values.metrics_export.enabled }}
+      {{- $routerReplicaCount := .Values.router.replicaCount | int }}
+      {{- $routerReplicaSetCount := .Values.router.replicasetCount | int }}
+      {{- $routerPort := .Values.router.appPort | int }}
+      {{- $replicationFailover := .Values.replication.failover }}
+      {{- $routerPodAddressString := printf "%s-router" $releaseName }}
+
+      {{ $routerGroupName }}:
+        {{- with index $cfgRoot.groups $routerGroupName }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- include "tarantool-chart.renderRolesSection" (dict "roles" $routerRoles "metricsEnabled" $metricsExport) | nindent 8 }}
+        replicasets:
+          {{- $podCounter := 0 }}
+          {{- range $replicaSetCount := until $routerReplicaSetCount }}
+          replicaset-router-{{ $replicaSetCount }}:
+          {{- if eq $replicationFailover "manual" }}
+            leader: {{ $routerPodAddressString }}-{{ $podCounter }}
+          {{- end }}
+            instances:
+              {{- range $replicaCount := until $routerReplicaCount }}
+              {{- $podNumber := ternary $replicaCount $podCounter (eq 0 $replicaSetCount) }}
+              {{- $podCounter = add $podCounter 1 }}
+              {{ $routerPodAddressString }}-{{ $podNumber }}:
+                iproto:
+                  listen:
+                    - uri: {{ $routerPodAddressString }}-{{ $podNumber }}.{{ $routerPodAddressString }}:{{ $routerPort }}
+                  advertise:
+                    client: {{ $routerPodAddressString }}-{{ $podNumber }}.{{ $routerPodAddressString }}:{{ $routerPort }}
+              {{- end }}
+          {{- end }}
+      {{- end }}
+
+      {{- $storageGroupName := .Values.storage.storageGroupName }}
+      {{- $storageReplicaCount := .Values.storage.replicaCount | int }}
+      {{- $storageReplicaSetCount := .Values.storage.replicasetCount | int }}
+      {{- $storagePort := .Values.storage.appPort | int }}
+      {{- $replicationFailover := .Values.replication.failover }}
+
+      {{ $storageGroupName }}:
+        {{- with index $cfgRoot.groups $storageGroupName }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- include "tarantool-chart.renderRolesSection" (dict "roles" .Values.storage.roles "metricsEnabled" .Values.metrics_export.enabled) | nindent 8 }}
+        replication:
+          bootstrap_strategy: {{ .Values.storage.replication.bootstrap_strategy }}
+        replicasets:
+          {{- range $replicaSetCount := until $storageReplicaSetCount }}
+          replicaset-storage-{{ $replicaSetCount }}:
+          {{- $storagePodAddressString := (printf "%s-replicaset-%v-storage" $releaseName $replicaSetCount) }}
+          {{- if eq $replicationFailover "manual" }}
+            leader: {{ $storagePodAddressString }}-0
+          {{- end }}
+            instances:
+              {{- range $replicaCount := until $storageReplicaCount }}
+              {{ $storagePodAddressString }}-{{ $replicaCount }}:
+                iproto:
+                  listen:
+                    - uri: {{ $storagePodAddressString }}-{{ $replicaCount }}.{{ $storagePodAddressString }}:{{ $storagePort }}
+                  advertise:
+                    client: {{ $storagePodAddressString }}-{{ $replicaCount }}.{{ $storagePodAddressString }}:{{ $storagePort }}
+              {{- end }}
+          {{- end }}
+
+  tcm.yml: |-
+    http:
+      {{- toYaml .Values.tcm.http | nindent 6 }}
+      {{- $etcdport := (.Values.etcd.service.ports.client | int) }}
+    storage:
+      provider: etcd
+      etcd:
+        prefix: {{ .Values.ttConfigEtcdPrefix }}
+        endpoints:
+          {{- range $replicaSetCount := until (.Values.etcd.replicaCount | int) }}
+          - http://{{ $releaseName }}-etcd-{{ $replicaSetCount }}.{{ $releaseName }}-etcd-headless:{{ $etcdport }}
+          {{- end }}
+    security:
+      {{- toYaml .Values.tcm.security | nindent 6 }}
+    cluster:
+      {{- toYaml .Values.tcm.cluster | nindent 6 }}
+    initial-settings:
+      clusters:
+        - name: {{ index .Values.tcm "initial-settings" "clusters" 0 "name" }}
+          id: {{ index .Values.tcm "initial-settings" "clusters" 0 "id" }}
+          storage-connection:
+            provider: etcd
+            etcd-connection:
+              prefix: {{ .Values.ttConfigEtcdPrefix }}
+              endpoints:
+                {{- range $replicaSetCount := until (.Values.etcd.replicaCount | int) }}
+                - http://{{ $releaseName }}-etcd-{{ $replicaSetCount }}.{{ $releaseName }}-etcd-headless:{{ $etcdport }}
+                {{- end }}
+          tarantool-connection:
+            username: {{ .Values.credentials.clientUser.name }}
+            password: {{ .Values.credentials.clientUser.password }}

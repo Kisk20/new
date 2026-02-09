@@ -1,0 +1,169 @@
+{{- $lastRouter := (sub (mul .Values.router.replicaCount .Values.router.replicasetCount) 1) }}
+{{- $storageReplicaSet := (sub .Values.storage.replicasetCount 1) }}
+{{- $lastStorageReplica := (sub .Values.storage.replicaCount 1) }}
+{{- $releaseName := .Release.Name }}
+{{- $nameSpace := .Release.Namespace }}
+{{- $routerPodAddressString := (printf "%s-router" $releaseName) }}
+{{- $firstEtcdPodAddressString := (printf "%s-etcd-0.%s-etcd-headless"  $releaseName $releaseName)}}
+{{- $firstRouterPodAddressString := (printf "%s-router-0.%s-router"  $releaseName $releaseName)}}
+{{- $internalDomain := "svc.cluster.local" }}
+{{- $userName := .Values.credentials.clientUser.name }}
+{{- $passwordString := .Values.credentials.clientUser.password }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-config-job
+  labels:
+    {{- include "tarantool-chart.labels" . | nindent 4 }}
+spec:
+  ttlSecondsAfterFinished: {{ .Values.ttlAfterFinishedJob | default 100 }}
+  template:
+    spec:
+      {{- if .Values.securityContext }}
+      securityContext: {{- .Values.securityContext | toYaml | nindent 8 }}
+      {{- end }}    
+      {{- if .Values.affinity }}
+      affinity:
+        {{- toYaml .Values.affinity | nindent 8 }}
+      {{- end }}
+      {{- if .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{ toYaml . | nindent 8 }}
+      {{- end }}
+      {{- include "tarantool-chart.imagePullSecrets" . | nindent 6 }}
+      containers:
+        - name: config
+          image: {{ include "tarantool-chart.image" . }}
+          imagePullPolicy: {{ include "tarantool-chart.pullPolicy" . }}
+          command: ["/bin/sh"]
+          args: ["-ec", "env && tt cluster publish http://${ETCD_URI}${TT_CONFIG_PREFIX} /usr/share/tarantool/stand/config.yml --force"]
+          volumeMounts:
+            - name: tarantool-cluster-config
+              mountPath: "/usr/share/tarantool/stand/config.yml"
+              subPath: "config.yml"
+          workingDir: /usr/share/tarantool/tarantool/stand
+          env:
+            - name: ETCD_URI
+              value: '{{ $firstEtcdPodAddressString }}:{{ .Values.etcd.service.ports.client }}'
+            - name: TT_CONFIG_PREFIX
+              value: {{ .Values.ttConfigEtcdPrefix }}
+          {{ include "common.resources" (dict "resources" $.Values.tcm.resources) | nindent 10 }}
+      initContainers:
+        - name: init-config-job
+          image: {{ include "etcd-chart.image" . }}
+          command: ["sh", "/app/tarantooldb/wait_for_etcd_members.sh"]
+          {{ include "common.resources" (dict "resources" $.Values.tcm.resources) | nindent 10 }}
+          volumeMounts:
+            - name: cluster-init-scripts
+              mountPath: "/app/tarantooldb/wait_for_etcd_members.sh"
+              subPath: "wait_for_etcd_members.sh"
+          env:
+            - name: ETCD_URI
+              value: '{{ $firstEtcdPodAddressString }}.{{ $nameSpace }}.{{ $internalDomain }}:{{ .Values.etcd.service.ports.client }}'
+      restartPolicy: Never
+      volumes:
+        - name: tarantool-cluster-config
+          configMap:
+            name: {{ .Release.Name }}-configmap
+            items:
+            - key: "config.yml"
+              path: "config.yml"
+        - name: cluster-init-scripts
+          configMap: 
+            name: {{ .Release.Name }}-init-scripts
+            items:
+              - key: "wait_for_etcd_members.sh"
+                path: "wait_for_etcd_members.sh"
+  backoffLimit: 4
+---
+{{- if eq true .Values.autoBootstrap.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-auto-bootstrap-job
+  labels:
+    {{- include "tarantool-chart.labels" . | nindent 4 }}
+spec:
+  ttlSecondsAfterFinished: {{ .Values.ttlAfterFinishedJob | default 100 }}
+  template:
+    spec:
+      {{- if .Values.securityContext }}
+      securityContext: {{- .Values.securityContext | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if .Values.affinity }}
+      affinity:
+        {{- toYaml .Values.affinity | nindent 8 }}
+      {{- end }}
+      {{- if .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- include "tarantool-chart.imagePullSecrets" . | nindent 6 }}
+      containers:
+        - name: bootstrap
+          image: {{ include "autoBootstrap.image" . }}
+          imagePullPolicy: {{ include "autoBootstrap.pullPolicy" . }}
+          command: ["/bin/sh"]
+          args: ["-ec", "env && for i in $(seq 1 ${ATTEMPTS}); do tt replicaset vshard bootstrap ${ROUTER_URI} --timeout ${TIMEOUT}; sleep 10; done || exit 0"]
+          env:
+            - name: ROUTER_URI
+              value: '{{ $userName }}:{{ $passwordString }}@{{ $firstRouterPodAddressString }}.{{ $nameSpace }}.{{ $internalDomain }}:{{ .Values.router.servicePort }}'
+            - name: TT_CONFIG_PREFIX
+              value: {{ .Values.ttConfigEtcdPrefix }}
+            - name: ATTEMPTS
+              value: '{{ .Values.autoBootstrap.maxAttempts }}'
+            - name: TIMEOUT
+              value: '{{ .Values.autoBootstrap.timeout }}'
+          {{ include "common.resources" (dict "resources" $.Values.tcm.resources) | nindent 10 }}
+      initContainers:
+        - name: wait-last-router-job
+          image: {{ include "tarantool-chart.image" . }}
+          command: ["sh", "-c", "/app/tarantool/wait_instance_ready.sh 180 ${ROUTER_URI}"]
+          {{ include "common.resources" (dict "resources" $.Values.tcm.resources) | nindent 10 }}
+          volumeMounts:
+            - name: wait-init-scripts
+              mountPath: "/app/tarantool/wait_instance_ready.sh"
+              subPath: "wait_instance_ready.sh"
+          env:
+            - name: ROUTER_URI
+              value: '{{ $userName }}:{{ $passwordString }}@{{ $routerPodAddressString }}-{{ $lastRouter }}.{{ $routerPodAddressString }}.{{ $nameSpace }}.{{ $internalDomain }}:{{ .Values.router.servicePort }}'
+        - name: wait-last-storage-job
+          image: {{ include "tarantool-chart.image" . }}
+          command: ["sh", "/app/tarantool/wait_for_replicasets.sh", "180"]
+          {{ include "common.resources" (dict "resources" $.Values.tcm.resources) | nindent 10 }}
+          volumeMounts:
+            - name: wait-init-scripts
+              mountPath: "/app/tarantool/wait_for_replicasets.sh"
+              subPath: "wait_for_replicasets.sh"
+          env:
+            - name: REPLICASET_NUM
+              value: '{{ $storageReplicaSet }}'
+            - name: LAST_REPLICA_NUM
+              value: '{{ $lastStorageReplica }}'
+            - name: RELEASE_NAME
+              value: '{{ $releaseName }}'
+            - name: PREFIX_URI
+              value: '{{ $userName }}:{{ $passwordString }}@{{ $releaseName }}'
+            - name: SUFFIX_URI
+              value: '{{ $nameSpace }}.{{ $internalDomain }}:{{ .Values.storage.servicePort }}'
+      restartPolicy: Never
+      volumes:
+        - name: wait-init-scripts
+          configMap:
+            name: {{ $releaseName }}-init-scripts
+            defaultMode: 0755
+            items:
+            - key: "wait_instance_ready.sh"
+              path: "wait_instance_ready.sh"
+            - key: "wait_for_replicasets.sh"
+              path: "wait_for_replicasets.sh"
+  backoffLimit: 4
+{{ end }}

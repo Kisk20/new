@@ -1,0 +1,58 @@
+apiVersion: v2
+appVersion: 0.8.0
+dependencies:
+- condition: tqe.enabled
+  name: tqe
+  repository: ""
+  version: 2.5.3
+description: '# Helm Chart CDC  ## Оглавление 1. [Описание](#описание) 2. [Зависимости](#зависимости)     *
+  [Чарты](#чарты)     * [Внешние сервисы](#внешние-сервисы) 3. [Запуск](#запуск)     *
+  [Порядок развертывания](#порядок-развёртывания) 4. [Конфигурация](#values)  ## Описание  Данный
+  chart позволяет развернуть [Tarantool CDC][1] в необходимой конфигурации и обеспечить
+  подключение как к Tarantool TQE, так и к внешней БД (например, PostgreSQL).  В файле
+  `Chart.yaml` указаны две версии: * version: версия helm-чарта * appVersion: самая
+  свежая версия TarantoolCDC, запущенная в чарте до релиза.  Условно схема Change
+  Data Capture может быть выражена следующей схемой:  ```mermaid graph LR A[БД source]
+  -- Пишет как в реплику --> B[CDC source] B --> D{TQE} C --> E[БД sink] D --> C[CDC
+  sink] ```  ## Зависимости  ### Чарты:   * [tqe](https://gitlab.corp.mail.ru/tarantool/k8s/helm-chart-tqe)   *
+  [tarantool](https://gitlab.corp.mail.ru/tarantool/k8s/helm-chart-tarantool)   (зависимость
+  чарта tqe, не является прямой зависимостью текущего чарта)  Для корректной работы
+  Tarantool CDC необходимо иметь подключение к [TarantoolQE][2], что, в свою очередь,
+  требует поднятого подключения к инстансам Tarantool.  Используемые чарты добавлены
+  как подмодули git. Для их скачивания необходимо обновить git submodules:  ```bash
+  # скачать сабмодуль tqe git submodule update --init --recursive  # скачать сабмодуль
+  tarantool сабмодуля tqe git submodule update --init --recursive ```  #### Внешние
+  сервисы:   * БД source   * БД sink  Для работы CDC необходимо подключение к внешним
+  базам данных. Ниже будет описан пример подключения к PostgreSQL. Информацию о подключении
+  к другим СУБД можно найти в [документации Tarantool CDC][3]  ## Запуск  Для запуска
+  чарта настройте файл values как указано в главе [Конфигурация](#конфигурация) и
+  запустите helm:  ```bash helm install <Release Name> <path to chart> --values <path
+  to custom values file> ```  После этого можно мониторить состояние кластера через
+  TCM:  ```bash kubectl port-forward <pod name> 8081:8081 ```  В результате разворачивания
+  со всеми подключёнными необходимыми [зависимостями](#зависимости) мы получаем следующую
+  инфраструктуру:  ``` etcd:     |     |---etcd-0     |---etcd-1     |---etcd-2  tarantool:     |     |---replicaset-router-0     |   |     |   |---router-0     |     |---replicaset-storage-0         |         |---storage-0  tcm:     |     |---tcm  tqe:     |     |---tqe-api-publisher     |---tqe-api-consumer  cdc:     |     |---grpcOffset     |   |     |   |---tqe-api-pubsub     |     |---cdc-workers     |   |     |   |---cdc-source-DBsource0     |   |     |   |---cdc-sink-TQEqueue-0
+  ```  ### Порядок развёртывания  1. Инстансы etcd 2. Задача config job. Запускается,
+  когда получает минимальный ответ от инстансов etcd, добавляет конфигурационный файл.
+  3. Инстансы tarantool и tcm. Запускаются, когда утилита etcdctl показывает, что
+  в инстанс etcd успешно добавлен конфигурационный файл. 4. TQE gRPC (publisher, consumer)
+  и gRPC офсет. Запускается, когда сервисы `<release name>-router` и `<release name>-storage`
+  начинают отвечать. 5. CDC воркеры. Запускаются, когда получают минимальный ответ
+  от инстансов etcd, поскольку процесс развёртывания довольно долгий, в отличие от
+  всех остальных инстансов.  ## Известные неполадки и возможное решение  | Проблема
+  | Логи | Решение | |---|---|---| | Инстансы router и storage застряли в статусе
+  `Pending`, gRPC в статусе `CrashLoopBackOff` | - | Не создались PV и PVC, неверно
+  указан storage class в values | | Инстансы etcd застряли в статусе `Pending`, инстансы
+  tarantool в статусе `CrashLoopBackOff` | - | Не создались PV и PVC. Либо неверно
+  указан storage class, либо не удалились PVC с предыдущего запуска. | | Инстансы
+  router и storage находятся в статусе CrashLoopBackOff | 2024-10-03 07:25:34.371
+  [1] main utils.c:679 E> LuajitError: builtin/config/applier/app.lua:18: module ''app.vshard_bootstrapper''
+  not found: | Вероятно, неверно задана конфигурация tarantool. Некоторые элементы
+  конфига tarantool могут добавляться в текущий конфиг. Проверьте, нет ли лишних полей
+  в `charts/tqe/charts/tarantool/values.yaml` в блоке `config:` | | Инстанс cdc source
+  переходит в статус CrashLoopBackOff, потом перезапускается и снова падает | io.grpc.StatusRuntimeException:
+  INTERNAL: RST_STREAM closed stream. HTTP/2 error code: INTERNAL_ERROR | Проверьте
+  состояние кластера, вероятно, не выполнен vshard bootstrap |   [1]: https://www.tarantool.io/ru/cdc/
+  [2]: https://www.tarantool.io/ru/queue-enterprise/ [3]: https://gitlab.corp.mail.ru/tarantool/cdc/v9/tarantool-cdc/-/tree/master/doc '
+name: cdc
+type: application
+version: 0.8.2

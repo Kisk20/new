@@ -1,0 +1,277 @@
+* Готовим  инвентори файл host.yaml:
+
+# Пример: динамический\статический конфиг:
+Динамический конфиг в качестве примера для TDB#
+-------------------------------------------------------------------------------
+cluster_name: tarantooldb
+product: tarantool
+
+
+constants:
+  ansible_ssh_common_args: -o IdentitiesOnly=yes -o UserKnownHostsFile=/dev/null
+    -o StrictHostKeyChecking=no
+  cartridge_app_name: tarantooldb
+  tarantool_etcd_host: "{{ tarantool_etcd_host }}"
+  tarantool_tt_connect_username: client
+  tarantool_tt_connect_password: secret
+  tarantool_config_global:
+    iproto:
+      advertise:
+        peer:
+          login: replicator
+        sharding:
+          login: storage
+    credentials:
+      users:
+        replicator:
+          password: 'replicator_password'
+          roles:
+            - super
+        storage:
+          password: 'storage_password'
+          roles:
+            - sharding
+        admin:
+          password: 'xxx'
+          roles:
+            - super
+        client:
+          password: 'xxx'
+          roles:
+            - super
+        admin-tcm:
+          password: 'xxx'
+          roles: ['super']
+
+servers:
+  - name: 'vm_1'
+    host: 127.0.0.1 -- Адрес хоста
+    advertise_host: '127.0.0.1' -- Такой же адрес хоста
+    user: '{{ super_user }}'
+  - name: 'vm_2'
+    host: 127.0.0.1
+    advertise_host: '127.0.0.1'
+    user: '{{ super_user }}'
+components:
+  - name: storage
+    replicasets: 2
+    replicas: 2
+    config:
+      replicaset:
+        memtx:
+          memory: 512000000
+      group:
+        sharding:
+          roles: [storage]
+        roles:
+          - roles.crud-storage
+          - roles.expirationd
+          - roles.metrics-export
+          - dictionary.roles.storage
+        memtx:
+          memory: 536870912 #пример: 512MiB количество памяти
+        roles_cfg:
+          roles.expirationd: []
+  - name: router
+    replicasets: 2
+    replicas: 1
+    config:
+      group:
+        app:
+          module: app.vshard_bootstrapper
+        sharding:
+          roles: [router]
+        roles:
+          - roles.crud-router
+          - roles.metrics-export
+          - dictionary.roles.router
+        roles_cfg:
+          roles.crud-router:
+            stats: true
+            stats_driver: metrics
+            stats_quantiles: true
+            stats_quantile_tolerated_error: 0.001
+            stats_quantile_age_buckets_count: 5
+            stats_quantile_max_age_time: 180
+
+------------------------------------------------------------
+* Подготовка окружения
+* Для корректной установки программного комплекса, необходимо скачать ATE.(ansible-tarantool-enterprise) (https://www.tarantool.io/ru/accounts/customer_zone/packages/ansible/ansible-tarantool-enterprise-1.6.0.tar.gz)
+* Так же скачать сам пакет [TDB](https://www.tarantool.io/ru/accounts/customer_zone/packages/tarantooldb/release/for_deploy/linux/x86_64/2.x), актуальную версию выбрать из списка.
+* И пакет для установки [Tarantool Cluster Manager](https://www.tarantool.io/ru/accounts/customer_zone/packages/tarantool-cluster-manager/release/linux/amd64/1.2) 
+* Редактируем инвентарный файл [host.yml] в соответствии с конфигурацией желаемого кластера.
+* Редактируем файл с переменными [env.sh].
+
+* Cодержимое env.sh:
+
+#!/bin/bash
+#
+# Use `source /path/to/env.sh`
+#
+die() {
+    echo "$*" 1>&2
+    return 1
+}
+
+# полный путь к приватному ключу пользователя,
+# из под которого будет происходить логин на сервер.
+export PATH_TO_PRIVATE_KEY=/home/ubuntu/xxx.ssh
+# имя пользователя для логина на сервер.
+export SUPER_USER_NAME=
+# название кластер1
+export CLUSTER_NAME=tdb2
+# имя архива с приложением
+export PACKAGE_NAME=tarantooldb-x.x.x.tar.gz
+# полный путь к файлу инвентаря.
+export PATH_TO_INVENTORY=/mnt/c/xxxxx/tdb2-0
+# полный путь к архиву с приложением.
+export PATH_TO_PACKAGE=/mnt/c/xxxxx/tdb2-0
+# версия инструмента для деплоя
+export DEPLOY_TOOL_VERSION_TAG=x.x.0
+# путь к инвентарному файлу TCF
+export PATH_TO_TCF_INVENTORY=/mnt/c/xxxxx/tdb2-0
+# имя пакета TCF
+export TCF_PACKAGE_NAME=tcf-0.3.1.tar.gz
+# путь к архиву с приложением TCF
+export PATH_TO_TCF_PACKAGE=/mnt/c/xxxxx/tdb2-0
+export HOSTS=ROUTERS,STORAGES
+export TCF_HOSTS=tcf
+# Имя архива с TCM
+export TCM_PACKAGE_NAME=tcm-1.2.3.tar.gz
+# Путь к архиву TCM
+export PATH_TO_TCM_PACKAGE=/mnt/c/xxxxx/tdb2-0
+# Инвентарный файл для TCM
+export PATH_TO_TCM_INVENTORY=/mnt/c/xxxxx/tdb2-0
+# Имя группы хостов в инвентаре
+export TCM_HOSTS=clusters-manager
+# Имя пользователя для применения миграций, взять из поля (credentials:users:) как правило пользователь admin
+export TT_CLI_USERNAME=admin
+# Пароль пользователя для применения миграций, взять из поля (credentials:users:admin:password)
+export TT_CLI_PASSWORD=xxxx
+   
+ * После редактирования запускаем его командой:
+    
+    source ./env.sh  
+
+* Редактируем файл [tcm-host.yml]
+ 
+ Установка решения
+
+* На хосте, с которого будет производится деплой решения, необходимо произвести загрузку образа **ansible-tarantool-enterprise:1.6.0**
+
+docker load -i ansible-tarantool-enterprise-1.8.0.tar.gz
+
+* Производим первоначальную настройку ВМ, создание пользователей и групп. Для этого выполняем плебук описанный ниже:
+
+docker run --network host -it --rm \
+    -v /home/i.pochitalkin/.ssh/id_rsa:/ansible/.ssh/id_private_key:Z \
+    -v /distr/bck.yaml:/ansible/inventories/hosts.yml:Z \
+    -e SUPER_USER_NAME=superuser \
+    ansible-tarantool-enterprise:1.14.0 \
+    ansible-playbook -i /ansible/inventories/hosts.yml \
+    --extra-vars  '{
+    "ansible_ssh_private_key_file":"/ansible/.ssh/id_private_key",
+    "super_user":"'superuser'",
+    "tarantool_shared_become_user":"root",
+}' \
+playbooks/env_prepare.yml
+
+****TEST***
+sudo docker run --network host -it --rm \
+-v /home/i.pochitalkin/.ssh/id_rsa:/ansible/.ssh/id_private_key:Z \
+-v /distr/bck.yaml:/ansible/inventories/hosts.yml:Z \
+-v /distr/tcm-1.5.2.linux.amd64.tar.gz:/ansible/packages/tcm-1.5.2.linux.amd64.tar.gz:Z \
+ansible-tarantool-enterprise:1.14.0 \
+echo "it's OK"
+****TEST***
+
+* Далее требуется установить Tarantool Cluster Manager:
+
+docker run --network host -it --rm \
+    -v /home/i.pochitalkin/.ssh/id_rsa:/ansible/.ssh/id_private_key:Z \
+    -v distr/tcm-host.2.yml:/ansible/inventories/tcm.yml:Z \
+    -v distr/tcm-1.5.2.linux.amd64.tar.gz:/ansible/packages/${TCM_PACKAGE_NAME}:Z \
+    ansible-tarantool-enterprise:1.14.0 \
+    ansible-playbook -i /ansible/inventories/tcm.yml \
+    --extra-vars '{
+    "tcm_package_path":"/ansible/packages/'${TCM_PACKAGE_NAME}'",
+    "ansible_ssh_private_key_file":"/ansible/.ssh/id_private_key",
+    "super_user":"'${SUPER_USER_NAME}'",
+    "tarantool_shared_become_user":"tarantool",
+    "tarantool_shared_hosts":"clusters-manager"
+}' \
+playbooks/tcm/install.yml
+
+* Ждем запуска TCM, после чего переходим в UI и редактируем параметры кластера:
+  * Для аутентификации используется пользователь `admin`, пароль берем из файла **<u>tcm-host.yml</u>**>, поле **tcm_bootstrap_password:**
+  * В левой столбце выбираем **Cluster**
+  * В открывшемся списке кластеров справа от названия **Default Cluster** нажимаем `...` затем `edit`
+  * В этом окне можно изменить имя кластера в поле `Name`, жмем `Next`
+  * В следующем окне правим:
+    * `Provider` - выбираем `etcd`
+    * `Prefix` - вносим значение из инвентяря. Пример: /tarantool/tarantooldb
+    * `Endpoints` - `http://<IP_etcd_VM>:2379`
+В открывшемся окно заполняем поля:
+    * `Username` - `admin`
+    * `Password` - берем из поля `credentials:users:admin:password`
+    Жмем `Update`
+    
+    
+    
+* Необходимо отправить конфигурацию кластера в ETCD:
+
+docker run --network host -it --rm \
+    -v ${PATH_TO_PRIVATE_KEY}/id_rsa:/ansible/.ssh/id_private_key:Z \
+    -v ${PATH_TO_INVENTORY}/hosts.yml:/ansible/inventories/hosts.yml:Z \
+    -e SUPER_USER_NAME=${SUPER_USER_NAME} \
+    ansible-tarantool-enterprise:${DEPLOY_TOOL_VERSION_TAG} \
+    ansible-playbook -i /ansible/inventories/hosts.yml \
+    --extra-vars '{
+    "ansible_ssh_private_key_file":"/ansible/.ssh/id_private_key",
+    "super_user":"'${SUPER_USER_NAME}'"
+}' \
+playbooks/etcd_3_0.yml
+
+
+
+* Теперь необходимо установить сам TDB. 
+
+docker run --network host -it --rm \
+    -v ${PATH_TO_PRIVATE_KEY}/id_rsa:/ansible/.ssh/id_private_key:Z \
+    -v ${PATH_TO_INVENTORY}/hosts.yml:/ansible/inventories/hosts.yml:Z \
+    -v ${PATH_TO_PACKAGE}/${PACKAGE_NAME}:/ansible/packages/${PACKAGE_NAME}:Z \
+    -e SUPER_USER_NAME=${SUPER_USER_NAME} \
+    -e PACKAGE_NAME=${PACKAGE_NAME} \
+    ansible-tarantool-enterprise:${DEPLOY_TOOL_VERSION_TAG} \
+    ansible-playbook -i /ansible/inventories/hosts.yml \
+    --extra-vars '{
+        "cartridge_package_path":"/ansible/packages/'${PACKAGE_NAME}'",
+        "ansible_ssh_private_key_file":"/ansible/.ssh/id_private_key",
+        "super_user":"'${SUPER_USER_NAME}'"
+    }' \
+playbooks/install_3_0.yml
+
+* Спустя не продолжительное время на вкладке `Stateboard` в UI TCM должен появиться активный кластер ТДБ, что означает корректную настройку.
+
+
+
+* Для удаления кластера запустить плейбук:
+
+docker run --network host -it --rm \
+    -v ${PATH_TO_PRIVATE_KEY}/id_rsa:/ansible/.ssh/id_private_key:Z \
+    -v ${PATH_TO_INVENTORY}/hosts.yml:/ansible/inventories/hosts.yml:Z \
+    -v ${PATH_TO_PACKAGE}/${PACKAGE_NAME}:/ansible/packages/${PACKAGE_NAME}:Z \ #tarantool-enterprise-sdk.tar.gz
+    -e SUPER_USER_NAME='{SUPER_USER_NAME}' \
+    ansible-tarantool-enterprise:1.4.1 \
+    ansible-playbook -i /ansible/inventories/hosts.yml \
+    --extra-vars '{
+        "cartridge_package_path":"/ansible/packages/'${PACKAGE_NAME}'",
+        "ansible_ssh_private_key_file":"/ansible/.ssh/id_private_key",
+        "super_user":"'${SUPER_USER_NAME}'",
+    }' \
+    playbooks/uninstall.yml
+    
+* После удаления кластера зайти на ноду с etcd и очистить конфигурацию кластера:
+
+ etcdctl del / —prefix 
+    

@@ -1,0 +1,53 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: hook-postupgrade
+  annotations:
+    "helm.sh/hook": "post-upgrade"
+    "helm.sh/hook-weight": "1"
+    "helm.sh/hook-delete-policy": "hook-succeeded"
+spec:
+  template:
+    spec:
+      {{- if .Values.securityContext }}
+      securityContext: {{- .Values.securityContext | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if .Values.affinity }}
+      affinity:
+        {{- toYaml .Values.affinity | nindent 8}}
+      {{- end }}
+      {{- if .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.nodeSelector | nindent 8}}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- include "tarantool-chart.imagePullSecrets" . | nindent 6 }}
+      containers:
+        - name: config
+          image: {{ include "tarantool-chart.image" . }}
+          imagePullPolicy: {{ include "tarantool-chart.pullPolicy" . }}
+          command: ["/bin/sh"]
+          args: ["-ec", "env && tt cluster publish http://${ETCD_URI}${TT_CONFIG_PREFIX} /usr/share/tarantool/stand/config.yml --force"]
+          volumeMounts:
+            - name: tarantool-upgrade-config
+              mountPath: "/usr/share/tarantool/stand/config.yml"
+              subPath: "config.yml"
+          workingDir: /usr/share/tarantool/tarantool/stand
+          env:
+            - name: ETCD_URI
+              value: '{{ .Release.Name }}-etcd-0.{{ .Release.Name }}-etcd-headless:{{ .Values.etcd.service.ports.client }}'
+            - name: TT_CONFIG_PREFIX
+              value: {{ .Values.ttConfigEtcdPrefix }}
+          {{ include "common.resources" (dict "resources" $.Values.tcm.resources) | nindent 10 }}
+      restartPolicy: Never
+      volumes:
+        - name: tarantool-upgrade-config
+          configMap:
+            name: {{ .Release.Name }}-configmap
+            items:
+            - key: "config.yml"
+              path: "config.yml"
+  backoffLimit: 4

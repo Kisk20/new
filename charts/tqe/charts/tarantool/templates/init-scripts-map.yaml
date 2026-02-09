@@ -1,0 +1,95 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-init-scripts
+  labels:
+    {{- include "tarantool-chart.labels" . | nindent 4 }}
+data:
+   wait_instance_ready.sh: |-
+    #!/bin/sh
+
+    set -e
+
+    # $1 - таймаут в секундах
+    # $2 - URI инстанса
+
+    me=$(basename "$0")
+    period=0.25
+    
+    echo "🔍 Checking router instance: $2 (timeout: $1s)..."
+    
+    timeout $1s sh -c "
+      while true; do
+        response=\$(echo 'return box.info().status' | tt connect $2 -f-);
+        if echo \$response | grep running; then
+          echo \"✅ Router instance is ready: $2\"
+          break;
+        fi;
+        echo \"⏳ Router instance is not ready yet, retrying...\"
+        sleep $period;
+      done" > /dev/null 2>&1 \
+      || (echo "❌ ERROR: Router instance $2 did not become ready within $1 seconds!" && exit 1)
+
+   wait_for_etcd.sh: |-
+    #!/bin/sh
+
+    set -e
+
+    echo "🔍 Checking ETCD availability..."
+
+    while true; do
+      if etcdctl --endpoints="http://${ETCD_URI}" get "${TT_CONFIG_ETCD_PREFIX}" --prefix 2>/dev/null | grep -q "${TT_CONFIG_ETCD_PREFIX}"; then
+          echo "✅ ETCD is ready to work!"
+          break
+      fi
+      echo "⏳ ETCD is not available yet, waiting 2 seconds..."
+      sleep 2
+    done
+
+   wait_for_etcd_members.sh: |-
+    #!/bin/sh
+
+    set -e
+
+    echo "🔍 Checking the status of ETCD members..."
+
+    while true; do
+      if etcdctl --endpoints="http://${ETCD_URI}" member list 2>/dev/null | grep -q "started,"; then
+          echo "✅ All ETCD nodes are running!"
+          break
+      fi
+      echo "⏳ Waiting for ETCD to start..."
+      sleep 2
+    done
+
+   wait_for_replicasets.sh: |-
+    #!/bin/sh
+
+    set -e
+
+    me=$(basename "$0")
+    period=0.25
+    timeout_duration=$1
+
+    echo "🟢 Starting replica set readiness check (REPLICASET_NUM=${REPLICASET_NUM})"
+
+    for ((i=0; i <= ${REPLICASET_NUM}; i++)); do
+      instance_uri="${PREFIX_URI}-replicaset-$i-storage-${LAST_REPLICA_NUM}.${RELEASE_NAME}-replicaset-$i-storage.${SUFFIX_URI}"
+
+      echo "🔄 Waiting for instance: $instance_uri (timeout: ${timeout_duration}s)..."
+
+      timeout "${timeout_duration}s" sh -c "
+        while true; do
+          response=\$(echo 'return box.info().status' | tt connect $instance_uri -f-);
+          if echo \$response | grep running; then
+            echo \"✅ Instance $instance_uri is up and running!\"
+            break;
+          fi;
+          echo \"⏳ Instance $instance_uri is not ready yet, retrying...\"
+          sleep '"$period"';
+        done" > /dev/null 2>&1 \
+        || (echo "❌ ERROR: Instance $instance_uri did not become ready within ${timeout_duration} seconds!" && exit 1)
+    done
+    echo "🎉 All replica set instances are ready!"
+
+        

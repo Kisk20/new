@@ -1,0 +1,168 @@
+# common variables
+{{- $image := (dict "repository" .Values.image.repository
+                    "tag" (default .Chart.AppVersion .Values.image.tag)
+                    "pullPolicy" .Values.image.pullPolicy
+                    "pullSecrets" .Values.image.pullSecrets) }}
+
+#
+# grpc publisher endpoint deployment
+#
+{{ $checkTarget := (printf "%s-router.%s.svc.cluster.local 3301"
+                           .Release.Name
+                           .Release.Namespace) }}
+{{ $checkTargetCommand := (printf "until nc -z %s; do echo waiting for target; sleep 10; done;"
+                                  $checkTarget) }}
+{{ $configmap := (printf "%s-grpc-publisher-config" .Release.Name) }}
+{{ $name := (printf "%s-tqe-api-publisher" .Release.Name) }}
+{{ $initCommand:= (list "sh" "-ec" $checkTargetCommand) }}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ $name }}
+  labels:
+    app: {{ $name }}
+spec:
+  replicas: {{ .Values.publisher.replicas }}
+  selector:
+    matchLabels:
+      app: {{ $name }}
+    {{- with $.Values.matchLabels  }}
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+  template:
+    metadata:
+      labels:
+        app: {{ $name }}
+        service: {{ $name }}
+        app.kubernetes.io/component: {{ $name }}
+        {{- with $.Values.templateLabels  }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- if $.Values.affinity }}
+      affinity:
+        {{- toYaml $.Values.affinity | nindent 8 }}
+      {{- end }}
+      {{- if $.Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml $.Values.nodeSelector | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.tolerations }}
+      tolerations: 
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{ include "common.images.renderPullSecrets" (dict "images" (list $.Values.image) "context" $) | nindent 6 }}
+      initContainers:
+      - name: init-grpc
+        image: {{ printf "%s:%s" $image.repository $image.tag | quote }}
+        imagePullPolicy: {{ $image.pullPolicy }}
+        command:
+        {{- toYaml $initCommand | nindent 10 }}
+      containers:
+      - name: main
+        image: {{ printf "%s:%s" $image.repository $image.tag | quote }}
+        imagePullPolicy: {{ $image.pullPolicy }}
+        env:
+          {{- include "tqe.renderEnvVars" $ | nindent 10 }}
+        command: [ "./message-queue-ee", "-config=/message-queue-ee/config.yml" ]
+        volumeMounts:
+        - name: config
+          mountPath: /message-queue-ee/config.yml
+          subPath: config.yml
+        {{ include "common.resources" (dict "resources" $.Values.publisher.resources) | nindent 8 }}
+        ports:
+        - name: monitoring
+          containerPort: 18184
+          protocol: TCP
+        - name: grpc
+          containerPort: 18182
+          protocol: TCP
+      volumes:
+      - name: config
+        configMap:
+          name: {{ $configmap }}
+...
+#
+# grpc consumer endpoint deployment
+#
+{{ $count := (include "tqe.consumer-count" .Values) | int }}
+{{ $shardSize := (.Values.tarantool.storage.replicaCount | int) }}
+{{ range $index := until $count }}
+{{ $name := printf "%s-tqe-api-consumer-%v" $.Release.Name $index }}
+{{ $configmap := printf "%s-grpc-consumer-config-%v" $.Release.Name $index }}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ $name }}
+  labels:
+    app: {{ $name }}
+spec:
+  replicas: {{ $.Values.consumer.replicas }}
+  selector:
+    matchLabels:
+      app: {{ $name }}
+    {{- with $.Values.matchLabels  }}
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+  template:
+    metadata:
+      labels:
+        app: {{ $name }}
+        service: {{ $name }}
+        app.kubernetes.io/component: {{ $name }}
+        {{- with $.Values.templateLabels  }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- if $.Values.affinity }}
+      affinity:
+        {{- toYaml $.Values.affinity | nindent 8 }}
+      {{- end }}
+      {{- if $.Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml $.Values.nodeSelector | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.tolerations }}
+      tolerations: 
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{ include "common.images.renderPullSecrets" (dict "images" (list $.Values.image) "context" $) | nindent 6 }}
+      initContainers:
+      - name: init-grpc
+        image: {{ printf "%s:%s" $image.repository $image.tag | quote }}
+        imagePullPolicy: {{ $image.pullPolicy }}
+        command: ["sh", "/app/helpers/scripts/wait_storages_ready.sh"]
+        volumeMounts:
+          - name: init-scripts
+            mountPath: "/app/helpers/scripts/wait_storages_ready.sh"
+            subPath: "wait_storages_ready.sh"
+      containers:
+      - name: main
+        image: {{ printf "%s:%s" $image.repository $image.tag | quote }}
+        imagePullPolicy: {{ $image.pullPolicy }}
+        env:
+          {{- include "tqe.renderEnvVars" $ | nindent 10 }}
+        command: [ "./message-queue-ee", "-config=/message-queue-ee/config.yml" ]
+        volumeMounts:
+        - name: config
+          mountPath: /message-queue-ee/config.yml
+          subPath: config.yml
+        {{ include "common.resources" (dict "resources" $.Values.consumer.resources) | nindent 8 }}
+        ports:
+        - name: monitoring
+          containerPort: 18184
+          protocol: TCP
+        - name: grpc
+          containerPort: 18182
+          protocol: TCP
+      volumes:
+      - name: config
+        configMap:
+          name: {{ $configmap }}
+      - name: init-scripts
+        configMap:
+          name: {{ $.Release.Name }}-tqe-init-scripts
+...
+{{- end }}

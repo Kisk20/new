@@ -1,0 +1,281 @@
+{{- $commonValues := (dict "tqe" $.Values.tqe
+                           "appVersion" $.Chart.AppVersion
+                           "worker" $.Values.worker
+                           "offsetsQueue" $.Values.offsets.queue
+                           "release" $.Release.Name
+                           "ns" $.Release.Namespace) }}
+{{- if $.Values.source.enabled }}
+{{- range $i, $configuration := $.Values.source.subConfigs }}
+{{- $workerId := (printf "%s-tarantoolcdc-source-worker-%v" $.Release.Name $i) }}
+{{- $tqeHost := (printf "%v-tqe-api-publisher.%s.svc.cluster.local" $.Release.Name $.Release.Namespace) }}
+{{- $cfg := mergeOverwrite
+    (deepCopy $configuration)
+    (deepCopy $.Values.source.commonConfig)
+    (dict "worker.distributed.group.id" $workerId
+          "worker.distributed.config.storage.topic" $workerId
+          "worker.distributed.status.storage.topic" $workerId
+          "worker.distributed.offset.storage.topic" $.Values.offsets.queue
+          "grpc.client.offsets.address" (printf "static://%s-tqe-api-pubsub.%s.svc.cluster.local:%v" $.Release.Name $.Release.Namespace $.Values.tqe.port)
+          "worker.connector.schema.history.internal.tqe.host" (printf "%s-tqe-api-pubsub.%s.svc.cluster.local" $.Release.Name $.Release.Namespace)
+          "worker.connector.schema.history.internal.tqe.port" $.Values.tqe.port
+          "worker.connector.schema.history.internal.tqe.queue.name" "schema"
+          "grpc.client.tqe.address" (printf "static://%s:%v" $tqeHost $.Values.tqe.port)) }}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $workerId }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ $workerId }}
+        {{- with $.Values.source.matchLabels  }}
+          {{- toYaml . | nindent 6 }}
+        {{- end }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ $workerId }}
+        cdc.tarantool.io/component: worker
+        app.kubernetes.io/component: {{ $.Release.Name }}-cdc-worker
+        {{- with $.Values.source.templateLabels  }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- if $.Values.tqe.tarantool.securityContext }}
+      securityContext: {{- $.Values.tqe.tarantool.securityContext | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if $.Values.affinity }}
+      affinity: 
+        {{- toYaml $.Values.affinity | nindent 8 }}
+      {{- end }}
+      {{- if $.Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml $.Values.nodeSelector | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.tolerations }}
+      tolerations: 
+        {{ toYaml . | nindent 8 }}
+      {{- end }}
+      {{ include "common.images.renderPullSecrets" (dict "images" (list $.Values.source.image) "context" $) | nindent 6 }}
+      initContainers:
+      - name: init-grpc
+        image: {{ $.Values.tqe.image.repository }}:{{ $.Values.tqe.image.tag }}
+        imagePullPolicy: {{ $.Values.tqe.image.pullPolicy }}
+        command: ["sh", "/app/helpers/scripts/wait_grpc_ready.sh"]
+        {{- include "common.resources" (dict "resources" $.Values.sink.resources) | nindent 8 }}
+        volumeMounts:
+          - name: init-script
+            mountPath: "/app/helpers/scripts/wait_grpc_ready.sh"
+            subPath: "wait_grpc_ready.sh"
+      containers:
+      - name: source-worker
+        image: {{ $.Values.source.image.repository }}:{{ $.Values.source.image.tag | default $.Chart.AppVersion }}
+        imagePullPolicy: {{ $.Values.source.image.pullPolicy }}
+        {{- include "common.resources" (dict "resources" $.Values.source.resources) | nindent 8 }}
+        ports:
+        - name: http
+          containerPort: 8000
+          protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: http
+          {{- toYaml $.Values.worker.livenessProbe | nindent 10 }}
+        startupProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: http
+          {{- toYaml $.Values.worker.startupProbe | nindent 10 }}
+        {{- if or (not (empty $.Values.source.commonConfigMaps)) (not (empty $.Values.source.commonSecrets)) }}
+        volumeMounts:
+          {{- if not (empty $.Values.source.commonConfigMaps) }}
+          {{- range $.Values.source.commonConfigMaps }}
+          - name: {{ .name }}
+            mountPath: {{ .path }}
+            subPath: {{ .file }}
+          {{- end }}
+          {{- end }}
+          {{- if not (empty $.Values.source.commonSecrets) }}
+          {{- range $.Values.source.commonSecrets }}
+          - name: {{ .name }}
+            mountPath: {{ .path }}
+            readOnly: true
+          {{- end }}
+          {{- end }}
+        {{- end }}
+        env:
+        - name: TZ
+          value: Asia/Almaty
+        {{- range $key, $value := $cfg }}
+        - name: {{ $key | replace "." "_" | upper }}
+          value: {{ $value | quote }}
+        {{- end }}
+      volumes:
+        - name: init-script
+          configMap:
+            name: {{ $.Release.Name }}-cdc-init-script
+      {{- if or (not (empty $.Values.source.commonConfigMaps)) (not (empty $.Values.source.commonSecrets)) }}
+        {{- if not (empty $.Values.source.commonConfigMaps) }}
+        {{- range $.Values.source.commonConfigMaps }}
+        - name: {{ .name }}
+          configMap:
+            name: {{ .name }}
+            items:
+            - key: {{ .file }}
+              path: {{ .file }}
+        {{- end }}
+        {{- end }}
+        {{- if not (empty $.Values.source.commonSecrets) }}
+        {{- range $.Values.source.commonSecrets }}
+        - name: {{ .name }}
+          secret:
+            secretName: {{ .name }}
+        {{- end }}
+        {{- end }}
+      {{- end }} 
+...
+{{- end }}
+{{- end }}
+{{- if $.Values.sink.enabled }}
+{{- range $i := until (include "tqe.consumer-count" $.Values.tqe | int) }}
+{{- range $j, $configuration := $.Values.sink.subConfigs }}
+{{- $tqeHost := (printf "%v-tqe-api-consumer-%v.%s.svc.cluster.local" $.Release.Name $i $.Release.Namespace) }}
+{{- $workerId := (printf "%s-tarantoolcdc-sink-worker-%v-%v" $.Release.Name $i $j) }}
+{{- $cfg := mergeOverwrite
+    (deepCopy $configuration)
+    (deepCopy $.Values.sink.commonConfig)
+    (dict "worker.distributed.group.id" $workerId
+          "worker.distributed.config.storage.topic" $workerId
+          "worker.distributed.status.storage.topic" $workerId
+          "worker.distributed.offset.storage.topic" $.Values.offsets.queue
+          "grpc.client.offsets.address" (printf "static://%s-tqe-api-pubsub.%s.svc.cluster.local:%v" $.Release.Name $.Release.Namespace $.Values.tqe.port)
+          "worker.connector.schema.history.internal.tqe.host" (printf "%s-tqe-api-pubsub.%s.svc.cluster.local" $.Release.Name $.Release.Namespace)
+          "worker.connector.schema.history.internal.tqe.port" $.Values.tqe.port
+          "worker.connector.schema.history.internal.tqe.queue.name" "schema"
+          "grpc.client.tqe.address" (printf "static://%s:%v" $tqeHost $.Values.tqe.port)) }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $workerId }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ $workerId }}
+        {{- with $.Values.sink.matchLabels  }}
+          {{- toYaml . | nindent 6 }}
+        {{- end }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ $workerId }}
+        cdc.tarantool.io/component: worker
+        app.kubernetes.io/component: {{ $.Release.Name }}-cdc-worker
+        {{- with $.Values.sink.templateLabels  }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- if $.Values.tqe.tarantool.securityContext }}
+      securityContext: {{- $.Values.tqe.tarantool.securityContext | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if $.Values.affinity }}
+      affinity: 
+        {{- toYaml $.Values.affinity | nindent 8 }}
+      {{- end }}
+      {{- if $.Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml $.Values.nodeSelector | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.tolerations }}
+      tolerations: 
+        {{ toYaml . | nindent 8 }}
+      {{- end }}
+      {{ include "common.images.renderPullSecrets" (dict "images" (list $.Values.sink.image) "context" $) | nindent 6 }}
+      initContainers:
+      - name: init-grpc
+        image: {{ $.Values.tqe.image.repository }}:{{ $.Values.tqe.image.tag }}
+        imagePullPolicy: {{ $.Values.tqe.image.pullPolicy }}
+        command: ["sh", "/app/helpers/scripts/wait_grpc_ready.sh"]
+        {{- include "common.resources" (dict "resources" $.Values.sink.resources) | nindent 8 }}
+        volumeMounts:
+          - name: init-script
+            mountPath: "/app/helpers/scripts/wait_grpc_ready.sh"
+            subPath: "wait_grpc_ready.sh"
+      containers:
+      - name: sink-worker
+        image: {{ $.Values.sink.image.repository }}:{{ $.Values.sink.image.tag | default $.Chart.AppVersion }}
+        imagePullPolicy: {{ $.Values.sink.image.pullPolicy }}
+        {{- include "common.resources" (dict "resources" $.Values.sink.resources) | nindent 8 }}
+        ports:
+        - name: http
+          containerPort: 8000
+          protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: http
+          {{- toYaml $.Values.worker.livenessProbe | nindent 10 }}
+        startupProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: http
+          {{- toYaml $.Values.worker.startupProbe | nindent 10 }}
+        {{- if or (not (empty $.Values.sink.commonConfigMaps)) (not (empty $.Values.sink.commonSecrets)) }}
+        volumeMounts:
+          {{- if not (empty $.Values.sink.commonConfigMaps) }}
+          {{- range $.Values.sink.commonConfigMaps }}
+          - name: {{ .name }}
+            mountPath: {{ .path }}
+            subPath: {{ .file }}
+          {{- end }}
+          {{- end }}
+          {{- if not (empty $.Values.sink.commonSecrets) }}
+          {{- range $.Values.sink.commonSecrets }}
+          - name: {{ .name }}
+            mountPath: {{ .path }}
+            readOnly: true
+          {{- end }}
+          {{- end }}
+        {{- end }}
+        env:
+        - name: TZ
+          value: Asia/Almaty
+        {{- range $key, $value := $cfg }}
+        - name: {{ $key | replace "." "_" | upper }}
+          value: {{ $value | quote }}
+        {{- end }}
+      volumes:
+        - name: init-script
+          configMap:
+            name: {{ $.Release.Name }}-cdc-init-script
+      {{- if or (not (empty $.Values.sink.commonConfigMaps)) (not (empty $.Values.sink.commonSecrets)) }}
+        {{- if not (empty $.Values.sink.commonConfigMaps) }}
+        {{- range $.Values.sink.commonConfigMaps }}
+        - name: {{ .name }}
+          configMap:
+            name: {{ .name }}
+            items:
+            - key: {{ .file }}
+              path: {{ .file }}
+        {{- end }}
+        {{- end }}
+        {{- if not (empty $.Values.sink.commonSecrets) }}
+        {{- range $.Values.sink.commonSecrets }}
+        - name: {{ .name }}
+          secret:
+            secretName: {{ .name }}
+        {{- end }}
+        {{- end }}
+      {{- end }} 
+...
+{{- end }}
+{{- end }}
+{{- end }}

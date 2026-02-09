@@ -1,0 +1,24 @@
+include:
+  - local-stand/databases/oracle/docker-compose.yml        # Oracle docker-compose
+
+services: {}
+
+networks:
+  stand-net:
+    name: stand-net
+    driver: bridge
+  tdb-stand-net:
+    name: tdb-stand-net
+    driver: bridge
+  tdb-stand-net-target:
+    name: tdb-stand-net-target
+    driver: bridge
+  tdb2-stand-net:
+    name: tdb2-stand-net
+    driver: bridge
+  tdb2-stand-net-target:
+    name: tdb2-stand-net-target
+    driver: bridge
+  tdg-stand-net:
+    name: tdg-stand-net
+    driver: bridge

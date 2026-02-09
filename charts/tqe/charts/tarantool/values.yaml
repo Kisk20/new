@@ -1,0 +1,361 @@
+global:
+  imageRegistry: ""
+  imagePullPolicy: IfNotPresent
+  imagePullSecrets: []
+
+# Uncomment and fill the credentials to automatocally create a secret for registry
+
+#imageCredentials:
+#  registry: quay.io
+#  username: someone
+#  password: sillyness
+#  email: someone@host.com
+
+# securityContext -- Allows to provide additional security parameters such as run as non root user, user's uid etc.
+# @section -- Common
+securityContext: []
+# For example:
+#  runAsNonRoot: true
+#  runAsUser: 1000
+
+# Parameters for routers in Tarantool cluster
+router:
+  # Enable/disable router instances
+  enabled: false
+  # Instances group name for routers. By default - 'routers'
+  routerGroupName: &routerGroupName "routers"
+  # A number of replicasets (shards) of routers in Tarantool cluster
+  replicasetCount: 1
+  # A number of router instances in each replicaset (shard) in Tarantool cluster
+  replicaCount: 1
+  # A port for k8s service to listen to queries to forward them to router pods
+  servicePort: 3301
+  # A port which router pods are listen to
+  appPort: 3301
+  # Roles definition
+  roles: []
+  # A set of ports to open for each pod
+  additionalPorts: []
+    # - containerPort: 8000
+    #   name: "Port 8000"
+    #   protocol: TCP
+  # Probes configuration
+  probes:
+    liveness:
+      initialDelaySeconds: 10
+      periodSeconds: 2
+      timeoutSeconds: 1
+      successThreshold: 1
+      failureThreshold: 3
+
+  # Prefered resources for Tarantool Router K8S pods
+  # User can change this value to fit their needs
+  # If no value is set for requests , the values ​​from limits will be used
+  # For example:
+  # resources:
+  #   requests: 
+  #     memory: 1024Mi
+  #     cpu: 1
+  #   limits:
+  #     memory: 2048Mi
+  #     cpu: 2
+  resources: 
+    limits: 
+      memory: 256Mi
+      cpu: 1
+
+  # Custom labels for router pods, will be added to spec.selector.matchLabels
+  matchLabels: {}
+  # Custom labels for router pods, will be added to spec.template.metadata.labels
+  templateLabels: {}
+
+# Parameters for storages in Tarantool cluster
+storage:
+  # Instances group name for storages. By default - 'storages'
+  storageGroupName: &storageGroupName "storages"
+  # Storage instances replication settings
+  replication:
+    bootstrap_strategy: auto
+  # A number of replicasets (shards) of storages in Tarantool cluster
+  replicasetCount: 1
+  # A number of storage instances in each replicaset (shard) in Tarantool cluster
+  replicaCount: 1
+  # A port for k8s service to listen to queries to forward them to storage pods
+  servicePort: 3301
+  # A port which storage pods are listen to
+  appPort: 3301
+  # Rolese definition
+  roles: []
+  # A set of ports to open for each pod
+  additionalPorts: []
+
+  # storage.ttWorkDir -- Define a TT_WORK_DIR variable for storages
+  # @section -- Storages
+  ttWorkDir:
+    enabled: false 
+    value: "/data" 
+    # - containerPort: 8000
+    #   name: "Port 8000"
+    #   protocol: TCP
+
+  # Probes configuration
+  probes:
+    liveness:
+      initialDelaySeconds: 10
+      periodSeconds: 2
+      timeoutSeconds: 1
+      successThreshold: 1
+      failureThreshold: 3
+  # Prefered resources for Tarantool Storage K8S pods
+  # User can change this value to fit their needs
+  # If no value is set for requests , the values ​​from limits will be used
+  # For example:
+  # resources:
+  #   requests: 
+  #     memory: 1024Mi
+  #     cpu: 1
+  #   limits:
+  #     memory: 2048Mi
+  #     cpu: 2
+
+  resources: 
+    limits: 
+      memory: 256Mi
+      cpu: 2
+
+  persistence:
+    # Storage settings for persistence volumes
+    enabled: true
+    # Volume size for Storage pods PVs
+    volumeSize: 8Gi
+    # StorageClass name for Storage pods PVs
+    storageClassName: ""
+    ##
+    ## persistentVolumeClaimRetentionPolicy aka "retentionPolicy"
+    ##
+    ## ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#persistentvolumeclaim-retention
+    ##
+    ## retentionPolicy.enabled Controls if and how PVCs are deleted during the lifecycle of a StatefulSet
+    ## retentionPolicy.whenScaled Volume retention behavior when the replica count of the StatefulSet is reduced
+    ## retentionPolicy.whenDeleted Volume retention behavior that applies when the StatefulSet is deleted
+    ##
+    retentionPolicy:
+      enabled: false
+      whenScaled: Retain
+      whenDeleted: Retain
+  # Custom labels for storage pods, will be added to spec.selector.matchLabels
+  matchLabels: {}
+  # Custom labels for storage pods, will be added to spec.template.metadata.labels
+  templateLabels: {}
+
+# Tarantool Cluster Manager's config
+tcm:
+  http:
+    host: 0.0.0.0
+    # A port which TCM pod is listen to
+    port: 8081
+  security:
+    bootstrap-password: secret
+  cluster:
+    tt-command: tt
+  # A port for k8s service to listen to queries to forward them to TCM pods
+  servicePort: 8081
+  # A set of ports to open for each pod
+  additionalPorts: []
+    # - containerPort: 8000
+    #   name: "Port 8000"
+    #   protocol: TCP
+  
+  # Prefered resources for TCM K8S pods
+  # User can change this value to fit their needs
+  # If no value is set for requests , the values ​​from limits will be used
+  # For example:
+  # resources:
+  #   requests: 
+  #     memory: 1024Mi
+  #     cpu: 1
+  #   limits:
+  #     memory: 2048Mi
+  #     cpu: 2
+  resources: 
+    limits: 
+      memory: 256Mi
+      cpu: 50m
+
+  # Initial Settings for TCM
+  initial-settings:
+    clusters:
+      - name: Tarantool Cluster
+        id: 00000000-0000-0000-0000-000000000000
+  # Custom labels for tcm pod, will be added to spec.selector.matchLabels
+  matchLabels: {}
+  # Custom labels for tcm pod, will be added to spec.template.metadata.labels
+  templateLabels: {}
+
+# Common parameters for routers/storages
+
+# Define user credentials and roles
+credentials:
+  clientUser:
+    name: client
+    password: 'secret'
+    roles: [super]
+
+# A replication settings
+replication:
+  failover: election
+# Control metrics-export role
+metrics_export:
+  enabled: false
+  http:
+    endpoints:
+      format: prometheus
+      path: /metrics
+    listen: 8081
+# A prefix for Tarantool's config in ETCD
+ttConfigEtcdPrefix: "/tnt"
+# A timeout for HTTP requests from Tarantool to ETCD, seconds
+ttConfigEtcdHttpRequestTimeout: 3
+# A TTL for the job that cleans up the job after it's finished
+#ttlAfterFinishedJob: 100
+# Tarantool image (for now, we use TarantoolDB instead of Tarantool)
+image:
+  # Registry name
+  registry: ""
+  # Repository/image name
+  repository: "tarantooldb"
+  # Image's tag
+  tag: "2.0.0"
+  # Image's pull policy
+  pullPolicy: IfNotPresent
+  pullSecrets: []
+
+# Automatic vShard bootstrap job parameters
+
+autoBootstrap:
+  # Enable/disable vshard bootstrap using tt tool
+  enabled: false
+  # How many times the autobootstrap job should try bootstrapping vShard
+  maxAttempts: 6
+  # A timeout for tt tool when bootstrapping vShard, seconds
+  timeout: 30
+  # An image name to use for autobootstrap job (should include the tt tool)
+  image:
+    # Registry name
+    registry: ""
+    # Repository/image name
+    repository: "tt"
+    # Image's tag
+    tag: "2.5.0"
+    # Image's pull policy
+    pullPolicy: IfNotPresent
+    pullSecrets: []
+
+# Parameters to assign pods to nodes. You can leave it empty
+affinity: {}
+nodeSelector: {}
+tolerations: []
+
+# Parameters for ETCD cluster
+
+etcd:
+  # Enable/disable ETCD cluster
+  enabled: true
+  # Parameters to assign ETCD pods to nodes. You can leave it empty
+  affinity: {}
+  nodeSelector: {}
+  tolerations: []
+  # A number of replicas (k8s pods) for ETCD cluster
+  replicaCount: 3
+  # Enable/disable RBAC (if enabled, you should provide authorization when connecting to ETCD)
+  auth:
+    rbac:
+      create: false
+  # Port which ETCD uses to listen for queries from clients
+  service:
+    ports:
+      client: 2379
+  # ETCD image settings
+  image:
+    # registry name
+    registry: "docker.io"
+    # etcd.image.repository -- Repository/image name
+    # @section -- etcd
+    repository: "bitnamilegacy/etcd"
+    # etcd.image.tag -- Image's tag
+    # @section -- etcd
+    tag: "3.5.15-debian-12-r6"
+  # ETCD settings for persistent volumes
+  persistence:
+    # StorageClass name for ETCD pods PVs
+    storageClass: ""
+    # A persistent volume's size for ETCD pods
+    size: 1Gi
+    # Enable/disable using persistent volumes for ETCD k8s pods
+    enabled: true
+    # An access modes for ETCD's persistent volumes
+    accessModes:
+      - ReadWriteOnce
+  # ETCD pods resource settings
+  resources:
+    requests:
+      # A CPU requests
+      cpu: 50m
+      # A Memory requetst
+      memory: 64Mi
+    limits:
+      # A CPU limits
+      cpu: 100m
+      # A Memory limits
+      memory: 128Mi
+  # ETCD Metrics parameters
+  metrics:
+    # Create PodMonitor Resource for scraping metrics using PrometheusOperator
+    enabled: false
+    # Namespace in which Prometheus is running
+    namespace: monitoring
+    # Specify the interval at which metrics should be scraped
+    interval: 30s
+    # Specify the timeout after which the scrape is ended
+    scrapeTimeout: 30s
+    # Prometheus Service Monitor
+    podMonitor:
+      # Additional labels that can be used so PodMonitors will be discovered by Prometheus
+      ## ref: https://github.com/coreos/prometheus-operator/blob/master/Documentation/api.md#prometheusspec
+      additionalLabels: {}
+
+# Environment variables from an existing Kubernetes Secret
+#env:
+#  DEBUG: "true"
+#  TEST_ENV: "4"
+
+# envSecretRef: tarantool-secrets
+generateEnvSecret: false
+#envSecretData:
+#  TT_API_KEY: abc123
+#  test: secret456
+
+# Tarantool cluster's config (for now, we use TarantoolDB instead of Tarantool)
+config:
+  parameters:
+    config:
+      context:
+        admin_password:
+          from: env
+          env: TT_ADMIN_PASSWORD
+    log:
+      to: stderr
+      format: 'json'
+      level: 'info'
+    # audit_log:
+    #   to: file
+    #   file: 'audit.log'
+    #   format: json
+    iproto:
+      advertise:
+        peer:
+          login: admin
+        sharding:
+          login: admin
+    groups:
+      *storageGroupName:

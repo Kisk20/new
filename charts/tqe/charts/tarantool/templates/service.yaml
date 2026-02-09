@@ -1,0 +1,82 @@
+{{ $releaseName := .Release.Name }}
+{{ $nameSpace := .Release.Namespace }}
+{{ $routerPodAddressString := (printf "%s-router" $releaseName) }}
+{{ $tcmPodAddressString := (printf "%s-tcm" $releaseName) }}
+{{ $routerServicePort := .Values.router.servicePort }}
+{{ $storageServicePort := .Values.storage.servicePort }}
+{{ $tcmServicePort := .Values.tcm.servicePort }}
+{{ $metricsExport := .Values.metrics_export.enabled }}
+{{ $metricsExportPort := .Values.metrics_export.http.listen }}
+{{ if eq true .Values.router.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/component: {{ $routerPodAddressString }}
+    {{- include "tarantool-chart.labels" . | nindent 4 }}
+  name: {{ $routerPodAddressString }}
+  namespace: {{ $nameSpace | quote }}
+spec:
+  publishNotReadyAddresses: true
+  clusterIP: None
+  ports:
+    - name: {{ $routerServicePort | quote }}
+      port: {{ $routerServicePort | int }}
+      protocol: TCP
+      targetPort: {{ .Values.router.appPort | int }}
+{{- if eq true $metricsExport }}
+    - name: {{ $metricsExportPort | quote }}
+      port: {{ $metricsExportPort | int }}
+      protocol: TCP
+      targetPort: {{ $metricsExportPort | int }}
+{{- end}}
+  selector:
+    app.kubernetes.io/component: {{ $routerPodAddressString }}
+  type: ClusterIP
+---
+{{- end }}
+{{- range $storageReplicasetNumber := until (.Values.storage.replicasetCount | int) }}
+{{- $storagePodAddressString := (printf "%s-replicaset-%v-storage" $releaseName $storageReplicasetNumber)}}
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/component: {{ $storagePodAddressString }}
+    {{- include "tarantool-chart.labels" $ | nindent 4 }}
+  name: {{ $storagePodAddressString }}
+  namespace: {{ $nameSpace | quote }}
+spec:
+  publishNotReadyAddresses: true
+  clusterIP: None
+  ports:
+    - name: {{ $storageServicePort | quote }}
+      port: {{ $storageServicePort | int }}
+      protocol: TCP
+      targetPort: {{ $.Values.storage.appPort | int }}
+{{- if eq true $metricsExport }}
+    - name: {{ $metricsExportPort | quote }}
+      port: {{ $metricsExportPort | int }}
+      protocol: TCP
+      targetPort: {{ $metricsExportPort | int }}
+{{- end}}
+  selector:
+    app.kubernetes.io/component: {{ $storagePodAddressString }}
+  type: ClusterIP
+---
+{{- end}}
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/component: {{ $tcmPodAddressString }}
+    {{- include "tarantool-chart.labels" . | nindent 4 }}
+  name: {{ $tcmPodAddressString }}
+  namespace: {{ $nameSpace | quote }}
+spec:
+  ports:
+    - name: {{ $tcmServicePort | quote }}
+      port: {{ $tcmServicePort | int }}
+      protocol: TCP
+      targetPort: {{ .Values.tcm.http.port | int }}
+  selector:
+    app.kubernetes.io/component: {{ $tcmPodAddressString }}

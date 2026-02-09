@@ -1,0 +1,23 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-cdc-init-script
+data:
+   wait_grpc_ready.sh: |-
+    #!/bin/sh
+
+    set -e
+
+    consumer_count={{ include "tqe.consumer-count" $.Values.tqe | int }}
+
+    for ((i=0;i<$consumer_count;++i)); do
+      echo "⏳Trying to connect to {{ .Release.Name }}-tqe-api-consumer-$i.{{ .Release.Namespace }}.svc.cluster.local"
+      until nc -z {{ .Release.Name }}-tqe-api-consumer-$i.{{ .Release.Namespace }}.svc.cluster.local {{ $.Values.tqe.port }}; do echo waiting for target; sleep 10; done;
+    done;
+
+    echo "⏳Trying to connect to {{ .Release.Name }}-tqe-api-publisher.{{ .Release.Namespace }}.svc.cluster.local"
+    until nc -z {{ .Release.Name }}-tqe-api-publisher.{{ .Release.Namespace }}.svc.cluster.local {{ $.Values.tqe.port }}; do echo waiting for target; sleep 10; done;
+    
+    echo "⏳Trying to connect to {{ .Release.Name }}-tqe-api-pubsub.{{ .Release.Namespace }}.svc.cluster.local"
+    until nc -z {{ .Release.Name }}-tqe-api-pubsub.{{ .Release.Namespace }}.svc.cluster.local {{ $.Values.tqe.port }}; do echo waiting for target; sleep 10; done;

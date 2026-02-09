@@ -1,0 +1,55 @@
+{{ $namespace := .Release.Namespace }}
+{{ $credentials := .Values.credentials }}
+{{ $releaseName := .Release.Name }}
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ $releaseName }}-grpc-publisher-config
+data:
+  config.yml: |
+    {{- include "grpc-service-common-config" $ }}
+    consumer:
+      enabled: false
+    publisher:
+      enabled: true
+      tarantool:
+        user: {{ $credentials.user }}
+        pass: {{ $credentials.password }}
+        connections:
+          router:
+          {{- range $i := until (mul .Values.tarantool.router.replicasetCount .Values.tarantool.router.replicaCount | int) }}
+          - "{{ $releaseName }}-router-{{ $i }}.{{ $releaseName }}-router.{{ $namespace }}.svc.cluster.local:3301"
+          {{- end }}
+...
+{{ $consumerCount := include "tqe.consumer-count" .Values | int }}
+{{ $storageReplicas := (.Values.tarantool.storage.replicaCount | int) }}
+{{ range $i := until $consumerCount }}
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ $releaseName }}-grpc-consumer-config-{{ $i }}
+data:
+  config.yml: |
+    {{- include "grpc-service-common-config" $ }}
+    publisher:
+      enabled: false
+    consumer:
+      enabled: true
+      polling_timeout: 500ms
+      tarantool:
+        user: {{ $credentials.user }}
+        pass: {{ $credentials.password }}
+        connections:
+          {{- template "tqe.storages-list" (dict
+              "consumerCapacity" $.Values.consumer.consumerCapacity
+              "storageReplicasets" $.Values.tarantool.storage.replicasetCount
+              "releaseName" $releaseName
+              "consumerCurrentIndex" $i
+              "consumerCount" $consumerCount
+              "storageReplicas" $storageReplicas
+              "namespace" $namespace
+          ) }}
+...
+{{ end }}

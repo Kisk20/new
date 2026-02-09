@@ -1,0 +1,289 @@
+# Image parameters for tarantool chart for Pods
+global:
+  # -- (list[object]) Image pull secrets. [Check K8s docs for more information](https://kubernetes.io/docs/concepts/configuration/secret/) to authenticate to docker registry tarantool chart for Pods. You can leave it empty if your registry doesn't requires authentication. You can generate secret by yourself or let us do it with imageCredentials (see Common section). Example: [{"name": "secret-name"}].
+  # @section -- Global
+  imagePullSecrets: []
+# Consumer section
+consumer:
+  # -- Consumer replicas
+  # @section -- TQE Consumer
+  replicas: 1
+  # -- Parameters to assign resources. You can leave it empty. If no value is set for requests, the values from limits will be used. [Check K8s docs for more information](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#requests-and-limits)
+  # @section -- TQE Consumer
+  resources:
+    limits:
+      memory: 256Mi
+      cpu: 500m
+  # -- Custom labels for consumer pods, will be added to spec.selector.matchLabels. [Check K8s docs for more information](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/)
+  # @section -- TQE Consumer
+  matchLabels: {}
+  # -- Custom labels for consumer pods, will be added to spec.template.metadata.labels. [Check K8s docs for more information](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/)
+  # @section -- TQE Consumer
+  templateLabels: {}
+
+  # -- (int) TQE Shards (storages) count to connect to the one TQE Consumer. Fill this parameter if you absolutely sure that your trafic lets you do this.
+  # @section -- TQE Consumer
+  consumerCapacity:
+
+# Publisher section
+publisher:
+  # -- Publisher replicas
+  # @section -- TQE Publisher
+  replicas: 1
+  # -- Parameters to assign resources. You can leave it empty. If no value is set for requests, the values from limits will be used. [Check K8s docs for more information](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#requests-and-limits)
+  # @section -- TQE Publisher
+  resources:
+    limits:
+      memory: 256Mi
+      cpu: 500m
+  # -- Custom labels for publisher pods, will be added to spec.selector.matchLabels. [Check K8s docs for more information](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/)
+  # @section -- TQE Publisher
+  matchLabels: {}
+  # -- Custom labels for publisher pods, will be added to spec.template.metadata.labels. [Check K8s docs for more information](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/)
+  # @section -- TQE Publisher
+  templateLabels: {}
+# TQE Images section
+image:
+  # -- Repository name
+  # @section -- TQE Images
+  repository: message-queue-ee
+  # -- Pull policy. [Check K8s docs for more information](https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy)
+  # @section -- TQE Images
+  pullPolicy: Always
+  # -- Tag
+  # @section -- TQE Images
+  tag: "2.5.3"
+  # -- (list[object]) Pull Secrets. [Check K8s docs for more information](https://kubernetes.io/docs/concepts/configuration/secret/) to authenticate to docker registry tarantool chart for Pods. You can leave it empty if your registry doesn't requires authentication. You can generate secret by yourself or let us do it with imageCredentials (see Common section). Example: [{"name": "secret-name"}].
+  # @section -- TQE Images
+  pullSecrets: []
+# Credentials for TQE
+credentials:
+  # -- Username
+  # @section -- TQE Credentials
+  user: client
+  # -- Password
+  # @section -- TQE Credentials
+  password: secret
+
+# -- (object) Parameters to assign additional options to GRPC configs
+# @section -- TQE GRPC options
+grpcOptions:
+  reflection_enabled: true
+  # initial_conn_window_size: 65535
+  # initial_window_size: 65535
+  # header_table_size: 16777216
+  # max_header_list_size: 128
+  # max_concurrent_streams: 128
+  # num_stream_workers: 0
+  # max_recv_msg_size: 4294967296
+  # max_send_msg_size: 2147483647
+  # read_buffer_size: 262144
+  # write_buffer_size: 262144
+  # shared_write_buffer: false
+
+# -- (object) Parameters to assign TQE pods to nodes. You can leave it empty. [Check K8s docs for more information](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity)
+# @section -- TQE Pods Placement
+affinity:
+# -- (object) Parameters to assign TQE pods to nodes. You can leave it empty. [Check K8s docs for more information](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector)
+# @section -- TQE Pods Placement
+nodeSelector:
+# -- Parameters to assign TQE pods to nodes. You can leave it empty. [Check K8s docs for more information](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/)
+# @section -- TQE Pods Placement
+tolerations: []
+
+# Tarantool section for values of Tarantool subChart. Describes all the parameters to start Tarantool routers an Tarantool storages, including TCM. Also this chart incudes etcd configuration
+tarantool:
+  # -- (object) Parameters to assign pods to nodes. You can leave it empty. [Check K8s docs for more information](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity)
+  # @section -- Tarantool core
+  affinity:
+  # -- (object) Parameters to assign pods to nodes. You can leave it empty. [Check K8s docs for more information](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector)
+  # @section -- Tarantool core
+  nodeSelector:
+  # -- (object) Parameters to assign pods to nodes. You can leave it empty. [Check K8s docs for more information](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/)
+  # @section -- Tarantool core
+  tolerations: []
+  # Router section
+  router:
+    # -- Enable/disable routers in Tarantool cluster
+    # @section -- Tarantool Router
+    enabled: true
+    # -- Group name for routers in Tarantool cluster
+    # @section -- Tarantool Router
+    routerGroupName: &routerGroupName "routers"
+    # -- Replicaset count for routers in Tarantool cluster
+    # @section -- Tarantool Router
+    replicasetCount: 1
+    # -- Replica count for routers in Tarantool cluster
+    # @section -- Tarantool Router
+    replicaCount: 1
+    # -- Service port for routers in Tarantool cluster
+    # @section -- Tarantool Router
+    servicePort: 3301
+    # -- App port for routers in Tarantool cluster
+    # @section -- Tarantool Router
+    appPort: 3301
+    # -- Resources for routers in Tarantool cluster. If no value is set for requests, the values from limits will be used. [Check K8s docs for more information](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#requests-and-limits)
+    # @section -- Tarantool Router
+    resources:
+      limits:
+        memory: 256Mi
+        cpu: 500m
+    # -- Roles for routers in Tarantool cluster. [Check tarantool docs for more information](https://www.tarantool.io/ru/doc/latest/platform/app/app_roles/#api-reference)
+    # @section -- Tarantool Router
+    roles:
+      - app.roles.api
+  # Storage section
+  storage:
+    # -- Group name for storages in Tarantool cluster
+    # @section -- Tarantool Storage
+    storageGroupName: &storageGroupName "storages"
+    # -- Replicaset count for storages in Tarantool cluster
+    # @section -- Tarantool Storage
+    replicasetCount: 1
+    # -- Replica count for storages in Tarantool cluster
+    # @section -- Tarantool Storage
+    replicaCount: 1
+    # -- Service port for storages in Tarantool cluster
+    # @section -- Tarantool Storage
+    servicePort: 3301
+    # -- App port for storages in Tarantool cluster
+    # @section -- Tarantool Storage
+    appPort: 3301
+    # -- Resources for storages in Tarantool cluster. If no value is set for requests, the values from limits will be used. [Check K8s docs for more information](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#requests-and-limits)
+    # @section -- Tarantool Storage
+    resources:
+      limits:
+        memory: 256Mi
+        cpu: 500m
+    persistence:
+      # -- Value of storage class name. [Check K8s docs for more information](https://kubernetes.io/docs/concepts/storage/storage-classes/)
+      # @section -- Tarantool Storage
+      storageClassName: ""
+    # -- Roles for storages in Tarantool cluster. [Check tarantool docs for more information](https://www.tarantool.io/ru/doc/latest/platform/app/app_roles/#api-reference)
+    # @section -- Tarantool Storage
+    roles:
+      - app.roles.queue
+  # AutoBootstrap section
+  autoBootstrap:
+    # -- Enable/disable vshard bootstrap using tt tool
+    # @section -- Tarantool autoBootstrap
+    enabled: true
+    # -- How many times the autobootstrap job should try bootstrapping vShard
+    # @section -- Tarantool autoBootstrap
+    maxAttempts: 6
+    # -- A timeout for tt tool when bootstrapping vShard, seconds
+    # @section -- Tarantool autoBootstrap
+    timeout: 30
+    image:
+      # -- Registry name
+      # @section -- Tarantool autoBootstrap
+      registry: ""
+      # -- Repository/image name
+      # @section -- Tarantool autoBootstrap
+      repository: "tt"
+      # -- Image's tag
+      # @section -- Tarantool autoBootstrap
+      tag: "2.10.0"
+      # -- Image's pull policy
+      # @section -- Tarantool autoBootstrap
+      pullPolicy: IfNotPresent
+      # -- (list[object]) Pull Secrets. [Check K8s docs for more information](https://kubernetes.io/docs/concepts/configuration/secret/) to authenticate to docker registry tarantool chart for Pods. You can leave it empty if your registry doesn't requires authentication. You can generate secret by yourself or let us do it with imageCredentials (see Common section). Example: [{"name": "secret-name"}].
+      # @section -- Tarantool autoBootstrap
+      pullSecrets: []
+  # -- Prefix for etcd were cluster data stored
+  # @section -- Tarantool core
+  ttConfigEtcdPrefix: "/tqe"
+  # -- Timeout for etcd requests
+  # @section -- Tarantool core
+  ttConfigEtcdHttpRequestTimeout: 3
+  # TCM section
+  tcm:
+    # -- Service port for Trantool Cluster Manager
+    # @section -- Tarantool TCM
+    servicePort: 8081
+    # -- Resources for Trantool Cluster Manager
+    # @section -- Tarantool TCM
+    resources:
+      limits:
+        memory: 256Mi
+        cpu: 50m
+    initial-settings:
+      clusters:
+        # -- Name of the TQE cluster
+        # @section -- Tarantool TCM
+        - name: TQE Cluster
+          # -- ID of the TQE cluster
+          # @section -- Tarantool TCM
+          id: 00000000-0000-0000-0000-000000000000
+          storage-connection:
+            # -- Storage provider
+            # @section -- Tarantool TCM
+            provider: etcd
+            etcd-connection:
+            # -- etcd connection prefix were cluster data stored
+            # @section -- Tarantool TCM
+              prefix: /tqe
+          # -- Tarantool connection settings
+          # @section -- Tarantool TCM
+          tarantool-connection:
+            # -- Tarantool username
+            # @section -- Tarantool TCM
+            username: client
+            # -- Tarantool password
+            # @section -- Tarantool TCM
+            password: secret
+
+  image:
+    # -- Repository name
+    # @section -- Tarantool core
+    repository: message-queue-ee
+    # -- Pull policy. [Check K8s docs for more information](https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy)
+    # @section -- Tarantool core
+    pullPolicy: Always
+    # -- Tag
+    # @section -- Tarantool core
+    tag: "2.5.3"
+    # -- Command
+    # @section -- Tarantool core
+    command: ["tarantool"]
+    # -- (list[object]) Pull Secrets. [Check K8s docs for more information](https://kubernetes.io/docs/concepts/configuration/secret/) to authenticate to docker registry tarantool chart for Pods. You can leave it empty if your registry doesn't requires authentication. You can generate secret by yourself or let us do it with imageCredentials (see Common section). Example: [{"name": "secret-name"}].
+    # @section -- Tarantool core
+    pullSecrets: []
+
+  config:
+    parameters:
+      # -- Roles configuration
+      # @section -- Tarantool core
+      roles_cfg: {}
+      # -- Sharding configuration
+      # @section -- Tarantool core
+      sharding:
+        bucket_count: 30000
+      # -- Groups configuration
+      # @section -- Tarantool core
+      groups:
+        *storageGroupName:
+          sharding:
+            roles: [storage]
+        *routerGroupName:
+          sharding:
+            roles: [router]
+
+  etcd:
+    # -- Enable/disable etcd
+    # @section -- etcd
+    enabled: true
+    # -- Replica count for etcd
+    # @section -- etcd
+    replicaCount: 3
+    # -- Persistence settings for etcd
+    # @section -- etcd
+    persistence:
+      size: 512Mi
+      # -- Storage class name. [Check K8s docs for more information](https://kubernetes.io/docs/concepts/storage/storage-classes/)
+      # @section -- etcd
+      storageClass: ""
+
+# You can specify arbitrary variables for GRPC in env
+#env:
+#  GOMAXPROCS: "10"

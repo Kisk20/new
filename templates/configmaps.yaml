@@ -1,0 +1,44 @@
+{{- if $.Values.offsets.grpcEndPoint.enabled }}
+{{- $namespace := .Release.Namespace }}
+{{- $credentials := .Values.tqe.credentials }}
+{{- $releaseName := .Release.Name }}
+{{- $storageReplicas := (.Values.tqe.tarantool.storage.replicaCount | int) }}
+{{- $storageReplicasets := (.Values.tqe.tarantool.storage.replicasetCount | int) }}
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: grpc-pubsub-config-{{ $releaseName }}
+data:
+  config.yml: |
+    app_name: TQE_PUBSUB
+    app_version: {{ $.Values.tqe.image.tag }}
+    core_host: 0.0.0.0
+    core_port: 18184
+    grpc_host: 0.0.0.0
+    grpc_port: 18182
+    publisher:
+      enabled: true
+      tarantool:
+        user: {{ $credentials.user }}
+        pass: {{ $credentials.password }}
+        connections:
+          routers:
+          {{- range $r := until (.Values.tqe.tarantool.router.replicasetCount | int) }}
+          - "{{ $releaseName }}-router-{{ $r }}.{{ $releaseName }}-router.{{ $namespace }}.svc.cluster.local:3301"
+          {{- end }}
+    consumer:
+      enabled: true
+      polling_timeout: 500ms
+      tarantool:
+        user: {{ $credentials.user }}
+        pass: {{ $credentials.password }}
+        connections:
+          {{- range $i := until $storageReplicasets }}
+          storage-{{ $i }}:
+          {{- range $j := until  $storageReplicas}}
+          - "{{ $releaseName }}-replicaset-{{ $i }}-storage-{{ $j }}.{{ $releaseName }}-replicaset-{{ $i }}-storage.{{ $namespace }}.svc.cluster.local:3301"
+          {{- end }}
+          {{- end }}
+...
+{{- end }}

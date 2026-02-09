@@ -1,0 +1,12 @@
+clusters-manager:
+  hosts:
+    tcm:
+      tcm_host: 0.0.0.0                               # адрес не менять, либо указать localhost
+      tcm_port: 8080                                  # порт на котором будет доступен UI TCM
+      tcm_etcd_host: 10.0.1.6                    # указать IP хоста где установлен ETCD
+      tcm_bootstrap_password: secret                  # Пароль для UI TCM
+      tcm_cluster_tt_command: /usr/local/bin/tt
+  vars:
+    ansible_host: 217.16.20.203                       # адрес хоста, куда устанвливается TCM
+    ansible_user: astra                               # super user на ВМ
+    ansible_ssh_common_args: -o IdentitiesOnly=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no

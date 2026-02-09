@@ -1,0 +1,21 @@
+{{- if $.Values.offsets.grpcEndPoint.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-tqe-api-pubsub
+spec:
+  clusterIP: None
+  selector:
+    service: {{ .Release.Name }}-tqe-api-pubsub
+  ports:
+  - name: monitoring
+    port: 18184
+    targetPort: monitoring
+    protocol: TCP
+  - name: grpc
+    port: 18182
+    protocol: TCP
+    targetPort: grpc
+...
+{{- end }}

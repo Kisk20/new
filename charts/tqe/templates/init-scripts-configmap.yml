@@ -1,0 +1,17 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-tqe-init-scripts
+data:
+   wait_storages_ready.sh: |-
+    #!/bin/sh
+
+    set -e
+
+    END={{ .Values.tarantool.storage.replicasetCount }}
+
+    for ((i=0;i<$END;++i)); do
+      echo "⏳Trying to connect to {{ .Release.Name }}-replicaset-$i-storage-{{ sub .Values.tarantool.storage.replicaCount 1 }}.{{ .Release.Name }}-replicaset-$i-storage.{{ .Release.Namespace }}.svc.cluster.local"
+      until nc -z {{ .Release.Name }}-replicaset-$i-storage-{{ sub .Values.tarantool.storage.replicaCount 1 }}.{{ .Release.Name }}-replicaset-$i-storage.{{ .Release.Namespace }}.svc.cluster.local 3301; do echo waiting for target; sleep 10; done;
+    done

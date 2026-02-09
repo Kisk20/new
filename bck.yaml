@@ -1,0 +1,326 @@
+all:
+  children:
+    ROUTERS:
+      children:
+        router-1:
+        router-2:
+        router-3:
+        router-4:
+      vars:
+        tarantool_config_group:
+          app:
+            module: app.vshard_bootstrapper
+          sharding:
+            roles: [router]
+          roles:
+            - roles.crud-router
+            - roles.metrics-export
+            - dictionary.roles.router
+          roles_cfg:
+            roles.crud-router:
+              stats: true
+              stats_driver: metrics
+              stats_quantiles: true
+              stats_quantile_tolerated_error: 0.001
+              stats_quantile_age_buckets_count: 5
+              stats_quantile_max_age_time: 180
+
+    SSTORAGES:
+      children:
+        storage-1:
+        storage-2:
+        storage-3:
+        storage-4:
+      vars:
+        tarantool_config_group:
+          sharding:
+            roles: [storage]
+          roles:
+            - roles.crud-storage
+            - roles.expirationd
+            - roles.metrics-export
+            - dictionary.roles.storage
+          memtx:
+            memory: 8589934592
+          wal:
+            ext:
+              old: true
+              new: true
+          roles_cfg:
+            roles.expirationd: []
+
+    storage-1:
+      hosts:
+        storage-1-1:
+        storage-1-2:
+      vars:
+        replicaset_alias: storage-1
+    storage-2:
+      hosts:
+        storage-2-1:
+        storage-2-2:
+      vars:
+        replicaset_alias: storage-2
+    storage-3:
+      hosts:
+        storage-3-1:
+        storage-3-2:
+      vars:
+        replicaset_alias: storage-3
+    storage-4:
+      hosts:
+        storage-4-1:
+        storage-4-2:
+      vars:
+        replicaset_alias: storage-4
+    router-1:
+      hosts:
+        router-1:
+      vars:
+        replicaset_alias: router-1
+    router-2:
+      hosts:
+        router-2:
+      vars:
+        replicaset_alias: router-2
+    router-3:
+      hosts:
+        router-3:
+      vars:
+        replicaset_alias: router-3
+    router-4:
+      hosts:
+        router-4:
+      vars:
+        replicaset_alias: router-4
+
+    tarantooldb_1:                     # Условный хост, на котором расположены инстансы
+      hosts:
+        storage-1-1:
+          iproto:
+            listen:
+              - uri: 10.15.123.205:3301           # Заменить на IP VM
+            advertise:
+              client: 10.15.123.205:3301          # Заменить на IP VM
+          roles_cfg:
+            roles.metrics-export:
+              http:
+                - listen: 8191
+                  endpoints:
+                    - path: /metrics
+                      format: prometheus
+        storage-2-2:
+          iproto:
+            listen:
+              - uri: 10.15.123.206:3302             # Заменить на IP VM
+            advertise:
+              client: 10.15.123.206:3302            # Заменить на IP VM
+          roles_cfg:
+            roles.metrics-export:
+              http:
+                - listen: 8192
+                  endpoints:
+                    - path: /metrics
+                      format: prometheus
+        router-1:
+          iproto:
+            listen:
+              - uri: 10.15.123.205:3401             # Заменить на IP VM
+            advertise:
+              client: 10.15.123.205:3401            # Заменить на IP VM
+          roles_cfg:
+            roles.metrics-export:
+              http:
+                - listen: 8195
+                  endpoints:
+                    - path: /metrics
+                      format: prometheus
+
+      vars:
+        ansible_host: 10.15.123.205          # Заменить на IP VM
+        ansible_user: i.pochitalkin               # super user на ВМ
+
+    tarantooldb_2:                     # Условный хост, на котором расположены инстансы
+      hosts:
+        storage-3-2:
+          iproto:
+            listen:
+              - uri: 10.15.123.209:3301           # Заменить на IP VM
+            advertise:
+              client: 10.15.123.209:3301          # Заменить на IP VM
+          roles_cfg:
+            roles.metrics-export:
+              http:
+                - listen: 8191
+                  endpoints:
+                    - path: /metrics
+                      format: prometheus
+        storage-4-1:
+          iproto:
+            listen:
+              - uri: 10.15.123.211:3302             # Заменить на IP VM
+            advertise:
+              client: 10.15.123.211:3302            # Заменить на IP VM
+          roles_cfg:
+            roles.metrics-export:
+              http:
+                - listen: 8192
+                  endpoints:
+                    - path: /metrics
+                      format: prometheus
+        router-3:
+          iproto:
+            listen:
+              - uri: 10.15.123.209:3401             # Заменить на IP VM
+            advertise:
+              client: 10.15.123.209:3401            # Заменить на IP VM
+          roles_cfg:
+            roles.metrics-export:
+              http:
+                - listen: 8195
+                  endpoints:
+                    - path: /metrics
+                      format: prometheus
+
+      vars:
+        ansible_host: 10.15.123.205          # Заменить на IP VM
+        ansible_user: i.pochitalkin               # super user на ВМ
+
+    tarantooldb_3:                     # Условный хост, на котором расположены инстансы
+      hosts:
+        storage-1-2:
+          iproto:
+            listen:
+              - uri: 10.15.123.205:3301           # Заменить на IP VM
+            advertise:
+              client: 10.15.123.205:3301          # Заменить на IP VM
+          roles_cfg:
+            roles.metrics-export:
+              http:
+                - listen: 8191
+                  endpoints:
+                    - path: /metrics
+                      format: prometheus
+        storage-2-1:
+          iproto:
+            listen:
+              - uri: 10.15.123.206:3302             # Заменить на IP VM
+            advertise:
+              client: 10.15.123.206:3302            # Заменить на IP VM
+          roles_cfg:
+            roles.metrics-export:
+              http:
+                - listen: 8192
+                  endpoints:
+                    - path: /metrics
+                      format: prometheus
+        router-2:
+          iproto:
+            listen:
+              - uri: 10.15.123.206:3401             # Заменить на IP VM
+            advertise:
+              client: 10.15.123.206:3401            # Заменить на IP VM
+          roles_cfg:
+            roles.metrics-export:
+              http:
+                - listen: 8195
+                  endpoints:
+                    - path: /metrics
+                      format: prometheus
+
+      vars:
+        ansible_host: 10.15.123.206          # Заменить на IP VM
+        ansible_user: i.pochitalkin               # super user на ВМ
+
+    tarantooldb_4:                     # Условный хост, на котором расположены инстансы
+      hosts:
+        storage-3-1:
+          iproto:
+            listen:
+              - uri: 10.15.123.209:3301           # Заменить на IP VM
+            advertise:
+              client: 10.15.123.209:3301          # Заменить на IP VM
+          roles_cfg:
+            roles.metrics-export:
+              http:
+                - listen: 8191
+                  endpoints:
+                    - path: /metrics
+                      format: prometheus
+        storage-4-2:
+          iproto:
+            listen:
+              - uri: 10.15.123.211:3302             # Заменить на IP VM
+            advertise:
+              client: 10.15.123.211:3302            # Заменить на IP VM
+          roles_cfg:
+            roles.metrics-export:
+              http:
+                - listen: 8192
+                  endpoints:
+                    - path: /metrics
+                      format: prometheus
+        router-4:
+          iproto:
+            listen:
+              - uri: 10.15.123.211:3401             # Заменить на IP VM
+            advertise:
+              client: 10.15.123.211:3401            # Заменить на IP VM
+          roles_cfg:
+            roles.metrics-export:
+              http:
+                - listen: 8195
+                  endpoints:
+                    - path: /metrics
+                      format: prometheus
+
+      vars:
+        ansible_host: 10.15.123.211          # Заменить на IP VM
+        ansible_user: i.pochitalkin               # super user на ВМ
+
+  vars:
+    ansible_ssh_common_args: -o IdentitiesOnly=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
+    ansible_ssh_retries: 5
+    cartridge_app_name: tarantooldbnts              # Название для указании при подключении кластера в ТСМ ( в таком варианте получится /tarantool/tarantooldb )
+    tarantool_3_0_version_support: true
+    tarantool_etcd_host: 10.0.1.6         # Адрес ВМ на которой установлен и запущен ETCD
+    etcd_host: 10.0.1.6                    # Адрес ВМ на которой установлен и запущен ETCD
+    #etcd_cluster_prefix: /cluster
+    tarantool_config_global:
+      replication:
+        failover: supervised
+      failover:
+        lease_interval: 10
+        renew_interval: 9
+        probe_interval: 1
+      iproto:
+        advertise:
+          peer:
+            login: replicator
+          sharding:
+            login: storage
+      credentials:
+        users:
+          replicator:
+            password: 'replicator_password'
+            roles: [replication]
+            privileges:
+              - permissions: [execute]
+                lua_call: [failover.execute]
+          storage:
+            password: 'storage_password'
+            roles:
+              - sharding
+          admin:
+            password: 'secret-cluster-cookie'
+            roles:
+              - super
+          client:
+            password: 'secret'
+            roles:
+              - super
+          admin-tcm:
+            password: 'you-know-who'
+            roles: ['super']
+      memtx:
+        memory: 8589934592

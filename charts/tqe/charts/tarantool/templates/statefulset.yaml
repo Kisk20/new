@@ -1,0 +1,300 @@
+{{ $storageReplicaSet := (sub .Values.storage.replicasetCount 1) }}
+{{ $lastStorageReplica := (sub .Values.storage.replicaCount 1) }}
+{{ $releaseName := .Release.Name }}
+{{ $nameSpace := .Release.Namespace }}
+{{ $etcdServicePort := (.Values.etcd.service.ports.client | int) }}
+{{ $etcdPodAddressString := (printf "%s-etcd" $releaseName )}}
+{{ $routerPodAddressString := (printf "%s-router" $releaseName) }}
+{{ $userName := .Values.credentials.clientUser.name }}
+{{ $passwordString := .Values.credentials.clientUser.password }}
+{{ $internalDomain := "svc.cluster.local" }}
+{{ if eq true .Values.router.enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app.kubernetes.io/component: {{ $routerPodAddressString }}
+    {{- include "tarantool-chart.labels" . | nindent 4 }}
+  name: {{ $routerPodAddressString }}
+  namespace: {{ $nameSpace | quote }}
+spec:
+  replicas: {{ mul .Values.router.replicaCount .Values.router.replicasetCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: {{ $routerPodAddressString }}
+      {{- include "tarantool-chart.matchLabels" $.Values.router.matchLabels | nindent 6 }}
+  serviceName: {{ $routerPodAddressString }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: {{ $routerPodAddressString }}
+        {{- include "tarantool-chart.labels" . | nindent 8 }}
+        {{- include "tarantool-chart.templateLabels" $.Values.router.templateLabels | nindent 8 }}
+    spec:
+      {{- if .Values.securityContext }}
+      securityContext: {{- .Values.securityContext | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if .Values.affinity }}
+      affinity:
+        {{- toYaml .Values.affinity | nindent 8 }}
+      {{- end }}
+      {{- if .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- include "tarantool-chart.imagePullSecrets" . | nindent 6 }}
+      containers:
+        - {{- include "tarantool-chart.renderEnvFromSecret" $ | nindent 10 }}
+          env:
+            - name: TT_CONFIG_ETCD_ENDPOINTS
+              value: {{ $etcdReplicaCount := (.Values.etcd.replicaCount | int) }}
+              {{- range $etcdReplicaNumber := until $etcdReplicaCount }}http://{{ $etcdPodAddressString }}-{{ $etcdReplicaNumber }}.{{ $etcdPodAddressString }}-headless:{{ $etcdServicePort }}
+              {{- if and (ne $etcdReplicaCount 1) (ne (sub $etcdReplicaCount $etcdReplicaNumber) 1) }},{{ end }}{{ end }}
+            - name: TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT
+              value: {{ .Values.ttConfigEtcdHttpRequestTimeout | quote }}
+            - name: TT_CONFIG_ETCD_PREFIX
+              value: {{ .Values.ttConfigEtcdPrefix }}
+            - name: TT_CLIENT_NAME
+              value: {{ .Values.credentials.clientUser.name }}
+            - name: TT_CLIENT_PASS
+              value: {{ .Values.credentials.clientUser.password }}
+            - name: TT_SERVICE_STRING
+              value: "{{ $routerPodAddressString }}.{{ $nameSpace }}.{{ $internalDomain }}:{{ .Values.router.servicePort }}"
+            - name: TT_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: admpass
+                  name: {{ $releaseName }}-admin-password
+            - name: TT_INSTANCE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            {{- include "tarantool-chart.renderEnvVars" $ | nindent 12 }}
+          image: {{ include "tarantool-chart.image" . }}
+          imagePullPolicy: {{ include "tarantool-chart.pullPolicy" . }}
+          {{- if .Values.image.command }}
+          command: {{ .Values.image.command }}
+          {{- end }}
+          name: {{ $routerPodAddressString }}
+          ports:
+            - containerPort: {{ .Values.router.appPort }}
+              protocol: TCP
+          {{- with .Values.router.additionalPorts }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{ include "common.resources" (dict "resources" $.Values.router.resources) | nindent 10 }}
+          livenessProbe:
+            exec:
+              command:
+              - "/bin/sh"
+              - "-ec"
+              - "env"
+              - "&&"
+              - "tt"
+              - "connect"
+              - "${TT_CLIENT_NAME}:${TT_CLIENT_PASS}@${TT_INSTANCE_NAME}.${TT_SERVICE_STRING}"
+              - "-f-"
+              - "1>/dev/null"
+              - "<<EOF"
+              - "\n"
+              - "\\q"
+              - "\n"
+              - "EOF"
+            initialDelaySeconds: {{ .Values.router.probes.liveness.initialDelaySeconds | int }}
+            periodSeconds: {{ .Values.router.probes.liveness.periodSeconds | int }}
+            timeoutSeconds: {{ .Values.router.probes.liveness.timeoutSeconds | int }}
+            successThreshold: {{ .Values.router.probes.liveness.successThreshold | int }}
+            failureThreshold: {{ .Values.router.probes.liveness.failureThreshold | int }}
+      initContainers:
+        - name: wait-last-storage-job
+          image: {{ include "tarantool-chart.image" . }}
+          imagePullPolicy: {{ include "tarantool-chart.pullPolicy" . }}
+          command: ["sh", "/app/tarantool/wait_for_replicasets.sh", "180"]
+          {{ include "common.resources" (dict "resources" $.Values.tcm.resources) | nindent 10 }}
+          volumeMounts:
+            - name: wait-init-scripts
+              mountPath: "/app/tarantool/wait_for_replicasets.sh"
+              subPath: "wait_for_replicasets.sh"
+          env:
+            - name: REPLICASET_NUM
+              value: '{{ $storageReplicaSet }}'
+            - name: LAST_REPLICA_NUM
+              value: '{{ $lastStorageReplica }}'
+            - name: RELEASE_NAME
+              value: '{{ $releaseName }}'
+            - name: PREFIX_URI
+              value: '{{ $userName }}:{{ $passwordString }}@{{ $releaseName }}'
+            - name: SUFFIX_URI
+              value: '{{ $nameSpace }}.{{ $internalDomain }}:{{ .Values.storage.servicePort }}'
+      restartPolicy: Always
+      volumes:
+        - name: wait-init-scripts
+          configMap:
+            name: {{ $releaseName }}-init-scripts
+            items:
+            - key: "wait_for_replicasets.sh"
+              path: "wait_for_replicasets.sh"
+---
+{{ end }}
+{{- range $storageReplicasetNumber := until ($.Values.storage.replicasetCount | int) }}
+{{- $storagePodAddressString := (printf "%s-replicaset-%v-storage" $releaseName $storageReplicasetNumber)}}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app.kubernetes.io/component: {{ $storagePodAddressString }}
+    {{- include "tarantool-chart.labels" $ | nindent 4 }}
+  name: {{ $storagePodAddressString }}
+  namespace: {{ $nameSpace | quote }}
+spec:
+  replicas: {{ $.Values.storage.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: {{ $storagePodAddressString }}
+      {{- include "tarantool-chart.matchLabels" $.Values.storage.matchLabels | nindent 6 }}
+  serviceName: {{ $storagePodAddressString }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: {{ $storagePodAddressString }}
+        {{- include "tarantool-chart.labels" $ | nindent 8 }}
+        {{- include "tarantool-chart.templateLabels" $.Values.storage.templateLabels | nindent 8 }}
+    spec:
+      {{- if $.Values.securityContext }}
+      securityContext: {{- $.Values.securityContext | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if $.Values.affinity }}
+      affinity:
+        {{- toYaml $.Values.affinity | nindent 8 }}
+      {{- end }}
+      {{- if $.Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml $.Values.nodeSelector | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- include "tarantool-chart.imagePullSecrets" $ | nindent 6 }}
+      containers:
+        - {{- include "tarantool-chart.renderEnvFromSecret" $ | nindent 10 }}
+          env:
+            - name: TT_CONFIG_ETCD_ENDPOINTS
+              value: {{ $etcdReplicaCount := ($.Values.etcd.replicaCount | int) }}
+              {{- range $etcdReplicaNumber := until $etcdReplicaCount }}http://{{ $etcdPodAddressString }}-{{ $etcdReplicaNumber }}.{{ $etcdPodAddressString }}-headless:{{ $etcdServicePort }}
+              {{- if and (ne $etcdReplicaCount 1) (ne (sub $etcdReplicaCount $etcdReplicaNumber) 1) }},{{ end }}{{ end }}
+            - name: TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT
+              value: {{ $.Values.ttConfigEtcdHttpRequestTimeout | quote }}
+            - name: TT_CONFIG_ETCD_PREFIX
+              value: {{ $.Values.ttConfigEtcdPrefix }}
+            - name: TT_CLIENT_NAME
+              value: {{ $.Values.credentials.clientUser.name }}
+            - name: TT_CLIENT_PASS
+              value: {{ $.Values.credentials.clientUser.password }}
+            - name: TT_MEMTX_DIR
+              value: "/data"
+            - name: TT_WAL_DIR
+              value: "/data"
+            {{- if $.Values.storage.ttWorkDir.enabled }}
+            - name: TT_WORK_DIR
+              value: "{{ $.Values.storage.ttWorkDir.value }}"
+            {{- end }}
+            - name: TT_SERVICE_STRING
+              value: "{{ $storagePodAddressString }}.{{ $nameSpace }}.{{ $internalDomain }}:{{ $.Values.storage.servicePort }}"
+            - name: TT_REPLICATION_CONNECT_QUORUM
+              value: "0"
+            - name: TT_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: admpass
+                  name: {{ $releaseName }}-admin-password
+            - name: TT_INSTANCE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            {{- include "tarantool-chart.renderEnvVars" $ | nindent 12 }}
+          image: {{ include "tarantool-chart.image" $ }}
+          imagePullPolicy: {{ include "tarantool-chart.pullPolicy" $ }}
+          {{- if $.Values.image.command }}
+          command: {{ $.Values.image.command }}
+          {{- end }}
+          name: {{ $storagePodAddressString }}
+          ports:
+            - containerPort: {{ $.Values.storage.appPort }}
+              protocol: TCP
+          {{- with $.Values.storage.additionalPorts }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{ include "common.resources" (dict "resources" $.Values.storage.resources) | nindent 10 }}
+          livenessProbe:
+            exec:
+              command:
+              - "/bin/sh"
+              - "-ec"
+              - "env"
+              - "&&"
+              - "tt"
+              - "connect"
+              - "${TT_CLIENT_NAME}:${TT_CLIENT_PASS}@${TT_INSTANCE_NAME}.${TT_SERVICE_STRING}"
+              - "-f-"
+              - "1>/dev/null"
+              - "<<EOF"
+              - "\n"
+              - "\\q"
+              - "\n"
+              - "EOF"
+            initialDelaySeconds: {{ $.Values.storage.probes.liveness.initialDelaySeconds | int }}
+            periodSeconds: {{ $.Values.storage.probes.liveness.periodSeconds | int }}
+            timeoutSeconds: {{ $.Values.storage.probes.liveness.timeoutSeconds | int }}
+            successThreshold: {{ $.Values.storage.probes.liveness.successThreshold | int }}
+            failureThreshold: {{ $.Values.storage.probes.liveness.failureThreshold | int }}
+          {{- if $.Values.storage.persistence.enabled }}
+          volumeMounts:
+          - mountPath: /data
+            name: tarantool-data
+          {{- end }}
+      initContainers:
+        - name: init-config
+          image: {{ include "etcd-chart.image" $ }}
+          command: ["sh", "/app/tarantool/wait_for_etcd.sh"]
+          {{ include "common.resources" (dict "resources" $.Values.tcm.resources) | nindent 10 }}
+          volumeMounts:
+            - name: cluster-manager-init-scripts
+              mountPath: "/app/tarantool/wait_for_etcd.sh"
+              subPath: "wait_for_etcd.sh"
+          env:
+            - name: ETCD_URI
+              value: '{{ $etcdPodAddressString }}-0.{{ $etcdPodAddressString }}-headless.{{ $nameSpace }}.{{ $internalDomain }}:{{ $.Values.etcd.service.ports.client }}'
+            - name: TT_CONFIG_ETCD_PREFIX
+              value: {{ $.Values.ttConfigEtcdPrefix }}
+      restartPolicy: Always
+      volumes:
+        - name: cluster-manager-init-scripts
+          configMap:
+            name: {{ $.Release.Name }}-init-scripts
+            items:
+              - key: "wait_for_etcd.sh"
+                path: "wait_for_etcd.sh"
+  {{- if $.Values.storage.persistence.retentionPolicy.enabled }}
+  persistentVolumeClaimRetentionPolicy:
+    whenDeleted: {{ $.Values.storage.persistence.retentionPolicy.whenDeleted }}
+    whenScaled: {{ $.Values.storage.persistence.retentionPolicy.whenScaled }}
+  {{- end }}
+  {{- if $.Values.storage.persistence.enabled }}
+  volumeClaimTemplates:
+  - metadata:
+      name: tarantool-data
+    spec:
+      resources:
+        requests:
+          storage: {{ $.Values.storage.persistence.volumeSize }}
+      storageClassName: {{ $.Values.storage.persistence.storageClassName }}
+      accessModes:
+      - ReadWriteOnce
+  {{- end }}
+---
+{{- end }}
