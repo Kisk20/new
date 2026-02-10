@@ -9,3 +9,22 @@ root@cdc-k8s-dev:~# cd protos
 root@cdc-k8s-dev:~/protos# kubectl cp tranfer/cdc-tqe-api-publisher-0:/message-queue-ee/protobuf/tarantool/queue_ee/./
 error: source and destination are required
 root@cdc-k8s-dev:~/protos#
+
+
+
+# 1. Вернитесь в домашнюю директорию
+cd ~
+
+# 2. Создайте директорию и скопируйте файлы
+mkdir -p ~/tqe-protos
+
+# 3. Правильная команда копирования:
+kubectl cp transfer/cdc-tqe-api-publisher-0:/message-queue-ee/protobuf/tarantool/queue_ee \
+  ~/tqe-protos/queue_ee -n transfer
+
+# 4. Проверьте что скопировалось
+ls -la ~/tqe-protos/queue_ee/
+
+# 5. Посмотрите содержимое proto-файлов
+cat ~/tqe-protos/queue_ee/services/consumer.proto
+cat ~/tqe-protos/queue_ee/messages/message.proto
