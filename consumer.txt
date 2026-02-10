@@ -1,0 +1,9 @@
+[90m1:14PM[0m [33mWRN[0m [1minvalid log level, use default info[0m
+[90m1:14PM[0m [32mINF[0m [1mapp version test[0m
+[90m1:14PM[0m [32mINF[0m [1mmetrics available at 0.0.0.0:18184/metrics[0m
+[90m1:14PM[0m [32mINF[0m [1mconsumer enabled[0m [36maccess_mode=[0mprefer_rw [36mpolling_timeout=[0m500
+[90m1:14PM[0m [33mWRN[0m [1mgrpc_host and grpc_port are deprecated, use grpc_listen instead[0m
+[90m1:14PM[0m [32mINF[0m [1mgRPC server started at [0.0.0.0:18182][0m
+[90m1:14PM[0m [32mINF[0m [1mservices info: {"grpc.reflection.v1.ServerReflection":{"Methods":[{"Name":"ServerReflectionInfo","IsClientStream":true,"IsServerStream":true}],"Metadata":"grpc/reflection/v1/reflection.proto"},"grpc.reflection.v1alpha.ServerReflection":{"Methods":[{"Name":"ServerReflectionInfo","IsClientStream":true,"IsServerStream":true}],"Metadata":"grpc/reflection/v1alpha/reflection.proto"},"tarantool.queue_ee.ConsumerService":{"Methods":[{"Name":"Subscribe","IsClientStream":false,"IsServerStream":true}],"Metadata":"services/consumer.proto"}}[0m
+[90m1:14PM[0m [32mINF[0m [1mgRPC server started at 0.0.0.0:18182[0m
+[90m1:14PM[0m [32mINF[0m [1mconsumer connected[0m [36mmethod=[0m/tarantool.queue_ee.ConsumerService/Subscribe [36mqueue=[0mcdc [36mrequest_id=[0m8252f48c-7247-4c52-9f24-dfbc6bcd9958
