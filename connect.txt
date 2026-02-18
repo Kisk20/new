@@ -1,0 +1,28 @@
+ssh i.belyaev@10.15.123.212
+
+
+scp i.belyaev@10.15.123.209:/distr/tdb.tar.gz C:\1
+
+ssh i.belyaev@10.15.123.205
+ssh i.belyaev@10.15.123.206
+ssh i.belyaev@10.15.123.209
+ssh i.belyaev@10.15.123.211
+ssh i.belyaev@10.15.123.212
+ssh i.belyaev@10.15.123.214  export KUBECONFIG="/home/i.belyaev/.kube/config"
+ssh i.belyaev@10.15.123.215
+
+export NO_PROXY=192.168.49.2,10.96.0.0/12,192.168.59.0/24,192.168.49.0/24,192.168.39.0/24,registry-1.docker.io,127.0.0.1
+
+sqlplus OLR_USER/USR1PWD#@//10.15.23.157:1521/AMMYES
+
+sqlplus OLR_USER/USR1PWD#@//10.15.23.157:1521/AMMYES
+
+docker logs -f OpenLogReplicator 
+
+o5hD20C4ZCvbbEfH5J8XQKHEaVU5k93dNcTU
+
+export PATH=$LD_LIBRARY_PATH:$PATH
+export LD_LIBRARY_PATH=/opt/oracle/instantclient_21_4:$LD_LIBRARY_PATH
+export PATH=$LD_LIBRARY_PATH:$PATH
+sqlplus OLR_USER/USR1PWD#@//10.15.23.157:1521/AMMYES
+vim ~/.bashrc 

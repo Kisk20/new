@@ -592,3 +592,6 @@ root@cdc-k8s-dev:~#
 
 * Closing connection 0
 $
+
+
+helm --namespace transfer install -f k8s/samples/corpcloud/cdc-oracle-tdb2-example.yaml cdc tarantool-cdc-bundle-0.9.0/cdc/
